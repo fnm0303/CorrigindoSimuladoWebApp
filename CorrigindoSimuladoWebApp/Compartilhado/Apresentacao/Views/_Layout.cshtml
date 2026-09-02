@@ -14,10 +14,10 @@
 </head>
 
 <body style="background-color: lightgreen;">
-    <nav class="navbar navbar-light bg-white shadow-sm">
+    <nav class="navbar navbar-light bg-white shadow-sm py-1">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <a class="navbar-brand" href="#">
-                <img src="~/img/logoTipo_navBar.png" alt="Logo" width="170" height="100" class="d-inline-block align-text-top">
+                <img src="~/img/logoTipo_navBar2.png" alt="Logo" height="100" class="d-inline-block align-text-top">
             </a>
             <span class="navbar-text fw-semibold text-secondary fs-5">
                 versão 1.0
@@ -31,10 +31,10 @@
         <aside class="bg-white text-dark p-3 shadow-sm" style="width: 250px; min-width: 250px;">
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
-                    <a href="#" class="nav-link mb-2 text-dark" style="background-color: lightgreen;">Início</a>
+                    <a class="nav-link mb-2 text-dark" style="background-color: lightgreen;" asp-controller="Home" asp-action="Index">Início</a>
                 </li>
                 <li>
-                    <a href="#" class="nav-link link-dark mb-2">Turmas</a>
+                    <a class="nav-link link-dark mb-2" asp-controller="Turma" asp-action="IndexTurmas">Turmas</a>
                 </li>
                 <li>
                     <a href="#" class="nav-link link-dark mb-2">Alunos</a>

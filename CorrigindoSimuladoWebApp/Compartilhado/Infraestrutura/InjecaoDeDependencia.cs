@@ -1,4 +1,5 @@
 using CorrigindoSimuladoWebApp.Compartilhado.Infraestrutura.Arquivos;
+using CorrigindoSimuladoWebApp.Modulos.Turmas.Infraestrutura;
 
 namespace CorrigindoSimuladoWebApp.Compartilhado.Infraestrutura;
 
@@ -15,7 +16,7 @@ public static class InjecaoDeDependencia
             return contexto;
         });
 
-        //incluir services.AddScoped<RepositorioMódulo>();
+        services.AddScoped<RepositorioTurmaEmArquivo>();
 
     }
 }

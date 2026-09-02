@@ -1,0 +1,41 @@
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Gestão de Turmas";
+}
+
+<div class="row gap-3 gap-lg-0 mt-5">
+    <div class="col-12 col-lg-8">
+
+        <!-- Título do Módulo -->
+        <h2 class="display-5 mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">
+            Módulo de Turmas
+        </h2>
+
+        <!-- Linha divisória (ajustei a largura para ficar proporcional ao título) -->
+        <div style="width: 200px; height: 4px; background-color: #0f2d59; border-radius: 2px;" class="mb-4"></div>
+
+        <!-- Descrição -->
+        <p class="fs-5 text-black lh-base mb-4" style="max-width: 600px;">
+            Gerencie as turmas da instituição. Cadastre novas turmas para o ano letivo ou visualize a lista completa
+            para edição.
+        </p>
+
+        <!-- Botões de Ação -->
+        <div class="d-flex flex-wrap gap-3 mt-2">
+            <!-- Botão Cadastrar (Ação principal, cor preenchida) -->
+            <a asp-controller="Turmas" asp-action="Cadastrar"
+               class="btn btn-lg text-white shadow-sm d-flex align-items-center"
+               style="background-color: #0f2d59; border: none; padding: 12px 25px; transition: 0.2s;">
+                <i class="bi bi-plus-circle fs-5 me-2"></i> Cadastrar Turma
+            </a>
+
+            <!-- Botão Listar (Ação secundária, contorno) -->
+            <a asp-controller="Turmas" asp-action="Listar"
+               class="btn btn-lg bg-white shadow-sm d-flex align-items-center"
+               style="color: #0f2d59; border: 2px solid #0f2d59; padding: 10px 25px; transition: 0.2s;">
+                <i class="bi bi-list-ul fs-5 me-2"></i> Listar Turmas
+            </a>
+        </div>
+
+    </div>
+</div>
