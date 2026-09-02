@@ -10,14 +10,14 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     
-    <title>@ViewBag.Titulo | Corrigindo Simulados 1.0</title>
+    <title>@ViewBag.Titulo | Correção Inteligente</title>
 </head>
 
 <body style="background-color: lightgreen;">
     <nav class="navbar navbar-light bg-white shadow-sm py-1">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <a class="navbar-brand" href="#">
-                <img src="~/img/logoTipo_navBar2.png" alt="Logo" height="100" class="d-inline-block align-text-top">
+                <img src="~/img/logoTopo_navBar.png" alt="Logo" width="400" class="d-inline-block align-text-top">
             </a>
             <span class="navbar-text fw-semibold text-secondary fs-5">
                 versão 1.0
@@ -25,10 +25,10 @@
         </div>
     </nav>
 
-    <div class="d-flex" style="min-height: calc(100vh - 116px);">
+    <div class="d-flex" style="min-height: calc(100vh - 54px);">
         
         <!-- Menu Lateral Esquerdo -->
-        <aside class="bg-white text-dark p-3 shadow-sm" style="width: 250px; min-width: 250px;">
+        <aside class="bg-white text-dark p-3 shadow-sm d-flex flex-column" style="width: 210px; min-width: 210px;">
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
                     <a class="nav-link mb-2 text-dark" style="background-color: lightgreen;" asp-controller="Home" asp-action="Index">Início</a>
@@ -46,6 +46,10 @@
                     <a href="#" class="nav-link link-dark mb-2">Correção</a>
                 </li>
             </ul>
+
+            <div class="mt-auto text-center pb-3">
+                <img src="~/img/logoTipo_menu.png" alt="Logotipo" style="max-height: 150px; max-width: 100%;">
+            </div>
         </aside>
 
     <main class="container py-5">
