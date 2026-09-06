@@ -19,6 +19,25 @@ public sealed class TurmaController : Controller
     }
 
     [HttpGet]
+    public ActionResult Listar()
+    {
+        List<ListarTurmaViewModel> viewModels = new List<ListarTurmaViewModel>();
+
+        foreach (Turma t in repositorio.SelecionarTodos())
+        {
+            ListarTurmaViewModel viewModel = new ListarTurmaViewModel(
+                t.Id,
+                t.Nome,
+                t.Curso,
+                t.AnoLetivo
+            );
+
+            viewModels.Add(viewModel);
+        }
+        return View(viewModels);
+    }
+
+    [HttpGet]
     public ActionResult Cadastrar()
     {
         CadastrarTurmaViewModel viewModel = new(
