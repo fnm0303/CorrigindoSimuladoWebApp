@@ -1,10 +1,14 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using CorrigindoSimuladoWebApp.Compartilhado.Dominio;
 
 namespace CorrigindoSimuladoWebApp.Modulos.Turmas.Dominio;
 
 public enum TipoCurso
 {
+    [Display(Name = "Ensino Fundamental")]
     EnsinoFundamental,
+    [Display(Name = "Ensino Médio")]
     EnsinoMedio
 }
 public sealed class Turma : EntidadeBase

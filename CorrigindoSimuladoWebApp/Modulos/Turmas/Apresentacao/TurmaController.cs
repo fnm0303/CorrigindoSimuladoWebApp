@@ -1,3 +1,4 @@
+using CorrigindoSimuladoWebApp.Modulos.Turmas.Dominio;
 using CorrigindoSimuladoWebApp.Modulos.Turmas.Infraestrutura;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,5 +16,36 @@ public sealed class TurmaController : Controller
     public ActionResult IndexTurmas()
     {
         return View();
+    }
+
+    [HttpGet]
+    public ActionResult Cadastrar()
+    {
+        CadastrarTurmaViewModel viewModel = new(
+            null,
+            null,
+            DateTime.Now.Year
+        );
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public ActionResult Cadastrar(CadastrarTurmaViewModel viewModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            // Se houver erro de digitação, devolve a mesma tela para o usuário corrigir
+            return View(viewModel);
+        }
+        Turma? turma = new(
+            viewModel.Nome ?? string.Empty,
+            viewModel.Curso.Value,
+            viewModel.AnoLetivo
+        );
+
+        repositorio.Cadastrar(turma);
+
+        return RedirectToAction(nameof(IndexTurmas));
     }
 }
