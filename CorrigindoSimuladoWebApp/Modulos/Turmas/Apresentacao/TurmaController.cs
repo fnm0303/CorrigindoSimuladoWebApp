@@ -59,11 +59,76 @@ public sealed class TurmaController : Controller
         }
         Turma? turma = new(
             viewModel.Nome ?? string.Empty,
-            viewModel.Curso.Value,
+            viewModel.Curso!.Value,
             viewModel.AnoLetivo
         );
 
         repositorio.Cadastrar(turma);
+
+        return RedirectToAction(nameof(IndexTurmas));
+    }
+
+    [HttpGet]
+    public ActionResult Editar(int id)
+    {
+        Turma? turmaSelecionada = repositorio.SelecionarPorId(id);
+
+        if (turmaSelecionada == null)
+            return NotFound();
+
+        EditarTurmaViewModel viewModel = new(
+            turmaSelecionada.Id,
+            turmaSelecionada.Nome,
+            turmaSelecionada.Curso,
+            turmaSelecionada.AnoLetivo
+        );
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public ActionResult Editar(int id, EditarTurmaViewModel viewModel)
+    {
+        if (!ModelState.IsValid)
+            return View(viewModel);
+
+        Turma turmaAtualizada = new(
+            viewModel.Nome ?? string.Empty,
+            viewModel.Curso!.Value,
+            viewModel.AnoLetivo
+        );
+
+        bool conseguiuEditar = repositorio.Editar(id, turmaAtualizada);
+
+        if (!conseguiuEditar)
+            return NotFound();
+
+        return RedirectToAction(nameof(IndexTurmas));
+    }
+
+    [HttpGet]
+    public ActionResult Excluir(int id)
+    {
+        Turma? turmaSelecionada = repositorio.SelecionarPorId(id);
+
+        if (turmaSelecionada == null)
+            return NotFound();
+
+        ExcluirTurmaViewModel viewModel = new(
+            turmaSelecionada.Id,
+            turmaSelecionada.Nome
+        );
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public ActionResult Excluir(ExcluirTurmaViewModel viewModel)
+    {
+        bool conseguiuExcluir = repositorio.Excluir(viewModel.Id);
+
+        if (!conseguiuExcluir)
+            return NotFound();
 
         return RedirectToAction(nameof(IndexTurmas));
     }

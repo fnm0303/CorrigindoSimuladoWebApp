@@ -32,10 +32,51 @@
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </a>
 
-                                <a asp-controller="Turma" asp-action="Excluir" asp-route-id="@turma.Id"
-                                   class="btn btn-sm btn-outline-danger">
+                                <!-- Botão que abre a janela de confirmação (Modal) -->
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                        data-bs-target="#modalExcluir-@turma.Id">
                                     <i class="bi bi-trash"></i> Excluir
-                                </a>
+                                </button>
+
+                                <!-- Janela de Confirmação (Modal Bootstrap) -->
+                                <div class="modal fade text-start" id="modalExcluir-@turma.Id" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+
+                                            <!-- Cabeçalho do Modal -->
+                                            <div class="modal-header text-white" style="background-color: #0f2d59;">
+                                                <h5 class="modal-title fs-5">Confirmar Exclusão</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                                        aria-label="Fechar"></button>
+                                            </div>
+
+                                            <!-- Corpo do Modal -->
+                                            <div class="modal-body p-4 text-center">
+                                                <i class="bi bi-exclamation-triangle text-warning display-4 mb-3 d-block"></i>
+                                                <p class="fs-5 text-dark mb-1">
+                                                    Deseja realmente excluir a turma <strong>@turma.Nome</strong>?
+                                                </p>
+                                                <span class="text-muted small">Esta ação não poderá ser desfeita.</span>
+                                            </div>
+
+                                            <!-- Rodapé do Modal (Ações) -->
+                                            <div class="modal-footer bg-light justify-content-center">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    <i class="bi bi-arrow-return-left"></i> Voltar
+                                                </button>
+
+                                                <form asp-controller="Turma" asp-action="Excluir" asp-route-id="@turma.Id"
+                                                      method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="bi bi-trash"></i> Sim, Excluir
+                                                    </button>
+                                                </form>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     }
