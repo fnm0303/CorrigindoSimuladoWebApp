@@ -6,12 +6,12 @@
 }
 
 <div class="row justify-content-start">
-    <form class="col-lg-6" asp-action="Editar" asp-route-id="@Model.Id" method="post">
+    <form class="col-lg-6" asp-action="Editar" method="post">
         <input asp-for="Id" type="hidden">
         <!-- Campo Nome -->
         <div class="mb-3">
             <label asp-for="Nome" class="form-label"></label>
-            <input asp-for="Nome" class="form-control" type="text" />
+            <input asp-for="Nome" class="form-control" />
             <span asp-validation-for="Nome" class="text-danger"></span>
         </div>
 
@@ -34,7 +34,7 @@
         <div class="d-flex gap-3 mt-4">
             <button class="btn btn-primary" type="submit">
                 <i class="bi bi-check"></i>
-                Confirmar Edição
+                Cadastrar
             </button>
             <a class="btn btn-outline-secondary" asp-action="IndexTurmas">
                 <i class="bi bi-arrow-return-left"></i>
