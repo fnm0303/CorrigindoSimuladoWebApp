@@ -39,6 +39,15 @@ public sealed class AlunoController : Controller
     [HttpPost]
     public ActionResult Cadastrar(CadastrarAlunoViewModel viewModel)
     {
+        if (viewModel.NumeroDeMatricula.HasValue)
+        {
+            bool matriculaExiste = repositorioAluno.SelecionarTodos()
+            .Any(a => a.NumeroDeMatricula == viewModel.NumeroDeMatricula.Value);
+
+            if (matriculaExiste)
+                ModelState.AddModelError(nameof(viewModel.NumeroDeMatricula), "Esta matrícula já está cadastrada no sistema.");
+        }
+
         Turma? turmaSelecionada = repositorioTurma.SelecionarPorId(viewModel.TurmaId);
 
         if (turmaSelecionada == null)
