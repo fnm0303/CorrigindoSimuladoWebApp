@@ -12,7 +12,7 @@ public record SelecionarTurmaViewModel(int Id, string Nome);
 public record CadastrarAlunoViewModel(
     [Required(ErrorMessage = "O campo é obrigatório.")]
     [Range(1000000, 9999999, ErrorMessage ="A matrícula deve conter exatamente 7 dígitos.")]
-    int NumeroDeMatricula,
+    int? NumeroDeMatricula,
 
     [Required(ErrorMessage = "O campo \"Nome\" é obrigatório.")]
     [StringLength(100, MinimumLength = 3,

@@ -27,7 +27,7 @@ public sealed class AlunoController : Controller
     public ActionResult Cadastrar()
     {
         CadastrarAlunoViewModel viewModel = new(
-            0000000,
+            null,
             null,
             0,
             ObterTurmasDisponiveis()
@@ -54,7 +54,7 @@ public sealed class AlunoController : Controller
         }
 
         Aluno aluno = new(
-            viewModel.NumeroDeMatricula,
+            viewModel.NumeroDeMatricula!.Value,
             viewModel.Nome ?? string.Empty,
             turmaSelecionada!
         );

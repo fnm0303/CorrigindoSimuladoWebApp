@@ -1,0 +1,50 @@
+@model CadastrarAlunoViewModel
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Cadastro de Aluno";
+}
+
+<div class="row justify-content-start mt-4">
+    <div class="col-lg-8 col-xl-6">
+        <form asp-controller="Aluno" asp-action="Cadastrar" method="post" class="card shadow-sm p-4 border-0 bg-white">
+            <div class="row">
+                <!-- Campo Número de Matrícula (7 dígitos) -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold" style="color: #0f2d59;">Nº de Matrícula</label>
+                    <input asp-for="NumeroDeMatricula" type="text" inputmode="numeric" class="form-control"
+                           placeholder="Ex: 1234567" maxlength="7" />
+                    <span asp-validation-for="NumeroDeMatricula" class="text-danger small"></span>
+                </div>
+            </div>
+            <!-- Campo Nome -->
+            <div class="mb-3">
+                <label asp-for="Nome" class="form-label fw-semibold" style="color: #0f2d59;"></label>
+                <input asp-for="Nome" class="form-control" placeholder="Digite o nome completo do aluno" />
+                <span asp-validation-for="Nome" class="text-danger small"></span>
+            </div>
+            <!-- Seleção de Turma -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold" style="color: #0f2d59;"></label>
+                <select asp-for="TurmaId" class="form-select">
+                    <option value="">Selecione uma turma...</option>
+                    @foreach (SelecionarTurmaViewModel turma in Model.TurmasDisponiveis!)
+                    {
+                        <option value="@turma.Id">@turma.Nome</option>
+                    }
+                </select>
+                <span asp-validation-for="TurmaId" class="text-danger small"></span>
+            </div>
+            <!-- Botões de Ação -->
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn text-white shadow-sm d-flex align-items-center"
+                        style="background-color: #0f2d59; border: none; padding: 10px 24px;">
+                    <i class="bi bi-check-lg fs-5 me-2"></i> Cadastrar Aluno
+                </button>
+                <a asp-controller="Aluno" asp-action="Index" class="btn btn-outline-secondary d-flex align-items-center"
+                   style="padding: 10px 20px;">
+                    <i class="bi bi-arrow-return-left me-2"></i> Voltar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
