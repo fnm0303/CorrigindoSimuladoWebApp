@@ -24,6 +24,25 @@ public sealed class AlunoController : Controller
     }
 
     [HttpGet]
+    public ActionResult Listar()
+    {
+        List<ListarAlunoViewModel> viewModels = new List<ListarAlunoViewModel>();
+
+        foreach (Aluno a in repositorioAluno.SelecionarTodos())
+        {
+            ListarAlunoViewModel viewModel = new ListarAlunoViewModel(
+                a.Id,
+                a.NumeroDeMatricula,
+                a.Nome,
+                a.Turma.Nome
+            );
+
+            viewModels.Add(viewModel);
+        }
+        return View(viewModels);
+    }
+
+    [HttpGet]
     public ActionResult Cadastrar()
     {
         CadastrarAlunoViewModel viewModel = new(
