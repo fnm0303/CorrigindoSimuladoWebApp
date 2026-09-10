@@ -154,7 +154,32 @@ public sealed class AlunoController : Controller
         return RedirectToAction(nameof(IndexAlunos));
     }
 
+    [HttpGet]
+    public ActionResult Excluir(int id)
+    {
+        Aluno? alunoSelecionado = repositorioAluno.SelecionarPorId(id);
 
+        if (alunoSelecionado == null)
+            return NotFound();
+
+        ExcluirAlunoViewModel viewModel = new(
+            alunoSelecionado.Id,
+            alunoSelecionado.Nome
+        );
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public ActionResult Excluir(ExcluirAlunoViewModel viewModel)
+    {
+        bool conseguiuExcluir = repositorioAluno.Excluir(viewModel.Id);
+
+        if (!conseguiuExcluir)
+            return NotFound();
+
+        return RedirectToAction(nameof(IndexAlunos));
+    }
     private List<SelecionarTurmaViewModel> ObterTurmasDisponiveis()
     {
         List<SelecionarTurmaViewModel> viewModels = new();
