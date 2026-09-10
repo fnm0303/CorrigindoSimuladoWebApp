@@ -91,6 +91,70 @@ public sealed class AlunoController : Controller
         return RedirectToAction(nameof(IndexAlunos));
     }
 
+    [HttpGet]
+    public ActionResult Editar(int id)
+    {
+        Aluno? alunoSelecionado = repositorioAluno.SelecionarPorId(id);
+
+        if (alunoSelecionado == null)
+            return NotFound();
+
+        EditarAlunoViewModel viewModel = new(
+            alunoSelecionado.Id,
+            alunoSelecionado.NumeroDeMatricula,
+            alunoSelecionado.Nome,
+            alunoSelecionado.Turma.Id,
+            ObterTurmasDisponiveis()
+        );
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public ActionResult Editar(int id, EditarAlunoViewModel viewModel)
+    {
+        if (viewModel.NumeroDeMatricula.HasValue)
+        {
+            bool matriculaEmUsoPorOutro = repositorioAluno.SelecionarTodos()
+                .Any(a => a.NumeroDeMatricula == viewModel.NumeroDeMatricula.Value && a.Id != id);
+
+            if (matriculaEmUsoPorOutro)
+            {
+                ModelState.AddModelError(
+                    nameof(viewModel.NumeroDeMatricula),
+                    "Esta matrícula já está cadastrada para outro aluno."
+                );
+            }
+        }
+        Turma? turmaSelecionada = repositorioTurma.SelecionarPorId(viewModel.TurmaId);
+
+        if (turmaSelecionada == null)
+            ModelState.AddModelError(nameof(viewModel.TurmaId), "Selecione uma turma válida.");
+
+        if (!ModelState.IsValid)
+        {
+            viewModel = viewModel with
+            {
+                TurmasDisponiveis = ObterTurmasDisponiveis()
+            };
+
+            return View(viewModel);
+        }
+        Aluno alunoAtualizado = new(
+            viewModel.NumeroDeMatricula!.Value,
+            viewModel.Nome ?? string.Empty,
+            turmaSelecionada!
+        );
+
+        bool conseguiuEditar = repositorioAluno.Editar(id, alunoAtualizado);
+
+        if (!conseguiuEditar)
+            return NotFound();
+
+        return RedirectToAction(nameof(IndexAlunos));
+    }
+
+
     private List<SelecionarTurmaViewModel> ObterTurmasDisponiveis()
     {
         List<SelecionarTurmaViewModel> viewModels = new();
