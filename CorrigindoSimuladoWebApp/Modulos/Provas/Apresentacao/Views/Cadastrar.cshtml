@@ -1,0 +1,73 @@
+@model CadastrarProvaViewModel
+
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Cadastro de Prova";
+}
+
+<div class="row justify-content-start mt-4">
+    <div class="col-lg-8 col-xl-6">
+
+        <h2 style="color: #0f2d59;" class="mb-4 fw-bold">Nova Prova</h2>
+
+        <form asp-controller="Prova" asp-action="Cadastrar" method="post" class="card shadow-sm p-4 border-0 bg-white">
+
+            <!-- Campo Nome da Prova -->
+            <div class="mb-3">
+                <label asp-for="Nome" class="form-label fw-semibold" style="color: #0f2d59;">Nome da Prova</label>
+                <input asp-for="Nome" class="form-control" placeholder="Ex: Simulado - 1º Bimestre" />
+                <span asp-validation-for="Nome" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <!-- Campo Quantidade de Questões -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="QuantidadeQuestoes" class="form-label fw-semibold" style="color: #0f2d59;">Qtd. de
+                        Questões</label>
+                        <input asp-for="QuantidadeQuestoes" type="number" class="form-control" placeholder="Ex: 10" min="1"
+                               max="100" />
+                        <span asp-validation-for="QuantidadeQuestoes" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Campo Gabarito Correto -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="GabaritoCorreto" class="form-label fw-semibold" style="color: #0f2d59;">Gabarito
+                            Correto</label>
+                            <input asp-for="GabaritoCorreto" class="form-control" placeholder="Ex: ABCDE"
+                                   style="text-transform: uppercase;" />
+                            <span asp-validation-for="GabaritoCorreto" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Seleção de Turma -->
+                    <div class="mb-4">
+                        <label asp-for="TurmaId" class="form-label fw-semibold" style="color: #0f2d59;">Turma Vinculada</label>
+                        <select asp-for="TurmaId" class="form-select">
+                            <option value="">Selecione uma turma...</option>
+                            @if (Model.TurmasDisponiveis != null)
+                            {
+                                foreach (var turma in Model.TurmasDisponiveis)
+                                {
+                                    <option value="@turma.Id">@turma.Nome</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="TurmaId" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn text-white shadow-sm d-flex align-items-center"
+                                style="background-color: #0f2d59; border: none; padding: 10px 24px;">
+                            <i class="bi bi-check-lg fs-5 me-2"></i> Cadastrar Prova
+                        </button>
+                        <a asp-controller="Prova" asp-action="IndexProvas"
+                           class="btn btn-outline-secondary d-flex align-items-center" style="padding: 10px 20px;">
+                            <i class="bi bi-arrow-return-left me-2"></i> Voltar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        
