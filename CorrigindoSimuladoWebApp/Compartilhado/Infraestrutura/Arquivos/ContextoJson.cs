@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CorrigindoSimuladoWebApp.Modulos.Alunos.Dominio;
+using CorrigindoSimuladoWebApp.Modulos.Provas.Dominio;
 using CorrigindoSimuladoWebApp.Modulos.Turmas.Dominio;
 
 namespace CorrigindoSimuladoWebApp.Compartilhado.Infraestrutura.Arquivos;
@@ -11,6 +12,7 @@ public class ContextoJson
 
     public List<Turma> Turmas { get; set; } = new List<Turma>();
     public List<Aluno> Alunos { get; set; } = new List<Aluno>();
+    public List<Prova> Provas { get; set; } = new List<Prova>();
     public ContextoJson()
     {
         string caminhoAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -57,5 +59,6 @@ public class ContextoJson
     {
         Turmas = contexto.Turmas;
         Alunos = contexto.Alunos;
+        Provas = contexto.Provas;
     }
 }
