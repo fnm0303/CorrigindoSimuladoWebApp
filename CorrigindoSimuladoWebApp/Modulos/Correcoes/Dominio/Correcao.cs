@@ -2,7 +2,7 @@ using CorrigindoSimuladoWebApp.Compartilhado.Dominio;
 using CorrigindoSimuladoWebApp.Modulos.Alunos.Dominio;
 using CorrigindoSimuladoWebApp.Modulos.Provas.Dominio;
 
-namespace CorrigindoSimuladoWebApp.Modulos.Correcao.Dominio;
+namespace CorrigindoSimuladoWebApp.Modulos.Correcoes.Dominio;
 
 public sealed class Correcao : EntidadeBase
 {
