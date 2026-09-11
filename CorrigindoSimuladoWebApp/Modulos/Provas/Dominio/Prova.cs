@@ -1,5 +1,4 @@
 using CorrigindoSimuladoWebApp.Compartilhado.Dominio;
-using CorrigindoSimuladoWebApp.Modulos.Alunos.Dominio;
 using CorrigindoSimuladoWebApp.Modulos.Turmas.Dominio;
 
 namespace CorrigindoSimuladoWebApp.Modulos.Provas.Dominio;
