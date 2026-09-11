@@ -44,3 +44,8 @@ public record EditarProvaViewModel(
 
     List<SelecionarTurmaViewModel>? TurmasDisponiveis
 );
+
+public record ExcluirProvaViewModel(
+    int Id,
+    string Nome
+);

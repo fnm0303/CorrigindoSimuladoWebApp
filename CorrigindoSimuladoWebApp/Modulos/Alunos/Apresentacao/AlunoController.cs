@@ -88,7 +88,7 @@ public sealed class AlunoController : Controller
         );
 
         repositorioAluno.Cadastrar(aluno);
-        return RedirectToAction(nameof(IndexAlunos));
+        return RedirectToAction(nameof(Listar));
     }
 
     [HttpGet]
@@ -151,7 +151,7 @@ public sealed class AlunoController : Controller
         if (!conseguiuEditar)
             return NotFound();
 
-        return RedirectToAction(nameof(IndexAlunos));
+        return RedirectToAction(nameof(Listar));
     }
 
     [HttpGet]
@@ -178,7 +178,7 @@ public sealed class AlunoController : Controller
         if (!conseguiuExcluir)
             return NotFound();
 
-        return RedirectToAction(nameof(IndexAlunos));
+        return RedirectToAction(nameof(Listar));
     }
     private List<SelecionarTurmaViewModel> ObterTurmasDisponiveis()
     {

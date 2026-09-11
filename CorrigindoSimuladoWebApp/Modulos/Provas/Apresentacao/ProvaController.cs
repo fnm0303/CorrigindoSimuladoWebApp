@@ -91,7 +91,7 @@ public sealed class ProvaController : Controller
         );
 
         repositorioProva.Cadastrar(prova);
-        return RedirectToAction(nameof(IndexProvas));
+        return RedirectToAction(nameof(Listar));
     }
 
     [HttpGet]
@@ -157,7 +157,34 @@ public sealed class ProvaController : Controller
         if (!conseguiuEditar)
             return NotFound();
 
-        return RedirectToAction(nameof(IndexProvas));
+        return RedirectToAction(nameof(Listar));
+    }
+
+    [HttpGet]
+    public ActionResult Excluir(int id)
+    {
+        Prova? provaSelecionada = repositorioProva.SelecionarPorId(id);
+
+        if (provaSelecionada == null)
+            return NotFound();
+
+        ExcluirProvaViewModel viewModel = new(
+            provaSelecionada.Id,
+            provaSelecionada.Nome
+        );
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public ActionResult Excluir(ExcluirProvaViewModel viewModel)
+    {
+        bool conseguiuExcluir = repositorioProva.Excluir(viewModel.Id);
+
+        if (!conseguiuExcluir)
+            return NotFound();
+
+        return RedirectToAction(nameof(Listar));
     }
 
     private List<SelecionarTurmaViewModel> ObterTurmasDisponiveis()

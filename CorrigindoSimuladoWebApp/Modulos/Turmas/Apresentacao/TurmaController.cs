@@ -65,7 +65,7 @@ public sealed class TurmaController : Controller
 
         repositorio.Cadastrar(turma);
 
-        return RedirectToAction(nameof(IndexTurmas));
+        return RedirectToAction(nameof(Listar));
     }
 
     [HttpGet]
@@ -103,7 +103,7 @@ public sealed class TurmaController : Controller
         if (!conseguiuEditar)
             return NotFound();
 
-        return RedirectToAction(nameof(IndexTurmas));
+        return RedirectToAction(nameof(Listar));
     }
 
     [HttpGet]
@@ -130,6 +130,6 @@ public sealed class TurmaController : Controller
         if (!conseguiuExcluir)
             return NotFound();
 
-        return RedirectToAction(nameof(IndexTurmas));
+        return RedirectToAction(nameof(Listar));
     }
 }
