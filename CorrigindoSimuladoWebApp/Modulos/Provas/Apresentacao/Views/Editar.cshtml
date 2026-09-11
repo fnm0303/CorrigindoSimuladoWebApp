@@ -1,16 +1,16 @@
-@model CadastrarProvaViewModel
+@model EditarProvaViewModel
 
 @{
     Layout = "_Layout";
-    ViewBag.Titulo = "Cadastro de Prova";
+    ViewBag.Titulo = "Edição de Prova";
 }
 
 <div class="row justify-content-start mt-4">
     <div class="col-lg-8 col-xl-6">
 
-        <h2 style="color: #0f2d59;" class="mb-4 fw-bold">Nova Prova</h2>
+        <h2 style="color: #0f2d59;" class="mb-4 fw-bold">Editar Prova</h2>
 
-        <form asp-controller="Prova" asp-action="Cadastrar" method="post" class="card shadow-sm p-4 border-0 bg-white">
+        <form asp-controller="Prova" asp-action="Editar" method="post" class="card shadow-sm p-4 border-0 bg-white">
 
             <!-- Campo Nome da Prova -->
             <div class="mb-3">
@@ -59,7 +59,7 @@
                     <div class="d-flex gap-3">
                         <button type="submit" class="btn text-white shadow-sm d-flex align-items-center"
                                 style="background-color: #0f2d59; border: none; padding: 10px 24px;">
-                            <i class="bi bi-check-lg fs-5 me-2"></i> Cadastrar Prova
+                            <i class="bi bi-check-lg fs-5 me-2"></i> Editar Prova
                         </button>
                         <a asp-controller="Prova" asp-action="IndexProvas"
                            class="btn btn-outline-secondary d-flex align-items-center" style="padding: 10px 20px;">
@@ -70,8 +70,3 @@
                 </form>
             </div>
         </div>
-
-  
-
-
-        

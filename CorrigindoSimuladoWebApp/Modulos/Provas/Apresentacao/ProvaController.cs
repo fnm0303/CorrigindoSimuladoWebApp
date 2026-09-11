@@ -94,6 +94,72 @@ public sealed class ProvaController : Controller
         return RedirectToAction(nameof(IndexProvas));
     }
 
+    [HttpGet]
+    public ActionResult Editar(int id)
+    {
+        Prova? provaSelecionada = repositorioProva.SelecionarPorId(id);
+
+        if (provaSelecionada == null)
+            return NotFound();
+
+        EditarProvaViewModel viewModel = new(
+            provaSelecionada.Id,
+            provaSelecionada.Nome,
+            provaSelecionada.QuantidadeQuestoes,
+            provaSelecionada.GabaritoCorreto,
+            provaSelecionada.Turma.Id,
+            ObterTurmasDisponiveis()
+        );
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public ActionResult Editar(int id, EditarProvaViewModel viewModel)
+    {
+        Turma? turmaSelecionada = repositorioTurma.SelecionarPorId(viewModel.TurmaId);
+
+        if (turmaSelecionada == null)
+            ModelState.AddModelError(nameof(viewModel.TurmaId), "Selecione uma turma válida");
+
+        // Validação de Negócio: O gabarito deve ter o mesmo tamanho da quantidade de questões
+        if (viewModel.QuantidadeQuestoes.HasValue && !string.IsNullOrEmpty(viewModel.GabaritoCorreto))
+        {
+            string gabaritoLimpo = viewModel.GabaritoCorreto.Replace(" ", "").Trim();
+
+            if (gabaritoLimpo.Length != viewModel.QuantidadeQuestoes.Value)
+            {
+                ModelState.AddModelError(
+                    nameof(viewModel.GabaritoCorreto),
+                    $"O gabarito deve conter exatamente {viewModel.QuantidadeQuestoes} letras."
+                );
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            viewModel = viewModel with
+            {
+                TurmasDisponiveis = ObterTurmasDisponiveis()
+            };
+            return View(viewModel);
+        }
+
+        Prova provaAtualizada = new(
+            viewModel.Nome ?? string.Empty,
+            viewModel.QuantidadeQuestoes!.Value,
+            viewModel.GabaritoCorreto.Replace(" ", "").ToUpper().Trim(), // Padroniza o gabarito
+            turmaSelecionada!
+        );
+
+        bool conseguiuEditar = repositorioProva.Editar(id, provaAtualizada);
+
+        if (!conseguiuEditar)
+            return NotFound();
+
+        return RedirectToAction(nameof(IndexProvas));
+    }
+
     private List<SelecionarTurmaViewModel> ObterTurmasDisponiveis()
     {
         List<SelecionarTurmaViewModel> viewModels = new();

@@ -16,7 +16,7 @@ public record CadastrarProvaViewModel(
     int? QuantidadeQuestoes,
 
     [Required(ErrorMessage = "O gabarito é obrigatório.")]
-    [RegularExpression(@"^[a-eA-E]+$", ErrorMessage = "O gabarito deve conter apenas as letras A, B, C, D ou E.")]
+    [RegularExpression(@"^[a-eA-E\s]+$", ErrorMessage = "O gabarito deve conter apenas as letras A, B, C, D ou E.")]
     string? GabaritoCorreto,
 
     [Required(ErrorMessage = "Selecione uma turma.")]
@@ -36,6 +36,7 @@ public record EditarProvaViewModel(
     int? QuantidadeQuestoes,
 
     [Required(ErrorMessage = "O gabarito é obrigatório.")]
+    [RegularExpression(@"^[a-eA-E]+$", ErrorMessage = "O gabarito deve conter apenas as letras A, B, C, D ou E.")]
     string? GabaritoCorreto,
 
     [Required(ErrorMessage = "Selecione uma turma.")]
