@@ -3,14 +3,13 @@ using System.ComponentModel.DataAnnotations;
 namespace CorrigindoSimuladoWebApp.Modulos.Correcoes.Apresentacao;
 
 // ViewModel genérico para preencher Dropdowns (combobox)
-public record SelecionarItemViewModel(int Id, string Nome);
+public record SelecionarAlunoViewModel(int Id, string Nome);
 
 public record ListarCorrecaoViewModel(
     int Id,
     string NomeProva,
     string NomeAluno,
-    int Acertos,
-    decimal Nota
+    int NumeroAcertos
 );
 
 public record CadastrarCorrecaoViewModel(
@@ -25,5 +24,5 @@ public record CadastrarCorrecaoViewModel(
     [RegularExpression(@"^[a-eA-E\s]+$", ErrorMessage = "O gabarito deve conter apenas as letras A, B, C, D ou E e espaços.")]
     string? GabaritoAluno,
 
-    List<SelecionarItemViewModel>? AlunosDisponiveis
+    List<SelecionarAlunoViewModel>? AlunosDisponiveis
 );
