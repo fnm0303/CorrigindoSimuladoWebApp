@@ -2,6 +2,7 @@ using CorrigindoSimuladoWebApp.Modulos.Alunos.Dominio;
 using CorrigindoSimuladoWebApp.Modulos.Alunos.Infraestrutura;
 using CorrigindoSimuladoWebApp.Modulos.Correcoes.Dominio;
 using CorrigindoSimuladoWebApp.Modulos.Correcoes.Infraestrutura;
+using CorrigindoSimuladoWebApp.Modulos.Provas.Dominio;
 using CorrigindoSimuladoWebApp.Modulos.Provas.Infraestrutura;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,26 +50,113 @@ public sealed class CorrecaoController : Controller
     }
 
     [HttpGet]
-    public ActionResult Cadastrar()
+    public ActionResult Cadastrar(int provaId)
     {
+        // 1. Busca a Prova selecionada
+        Prova? prova = repositorioProva.SelecionarPorId(provaId);
+
+        if (prova == null)
+            return RedirectToAction("SelecionarProva");
+
+        // 2. Filtra os alunos que pertencem SOMENTE à turma vinculada a esta prova
+        List<SelecionarItemViewModel> alunosDaTurma = repositorioAluno.SelecionarTodos()
+            .Where(a => a.Turma.Id == prova.Turma.Id)
+            .Select(a => new SelecionarItemViewModel(a.Id, a.Nome))
+            .ToList();
+
+        // 3. Monta a ViewModel
         CadastrarCorrecaoViewModel viewModel = new(
-            0,
+            prova.Id,
+            prova.Nome,
+            prova.QuantidadeQuestoes,
             null,
-            1,
             null,
-            null,
-            ObterAlunosDisponiveis()
+            alunosDaTurma
         );
-        return View(viewModel);
+
+        return View("/Modulos/Correcoes/Apresentacao/Views/Cadastrar.cshtml", viewModel);
     }
 
-    private List<SelecionarAlunoViewModel>? ObterAlunosDisponiveis()
+    [HttpPost]
+    public ActionResult Cadastrar(CadastrarCorrecaoViewModel viewModel)
     {
-        List<SelecionarAlunoViewModel> viewModels = new();
+        Prova? provaSelecionada = repositorioProva.SelecionarPorId(viewModel.ProvaId);
+        Aluno? alunoSelecionado = viewModel.AlunoId.HasValue ? repositorioAluno.SelecionarPorId(viewModel.AlunoId.Value) : null;
+
+        if (provaSelecionada == null || alunoSelecionado == null)
+            return NotFound();
+
+        // VALIDAÇÃO 1: Impede que o aluno tenha duas notas na mesma prova
+        bool alunoJaFezAProva = repositorioCorrecao.SelecionarTodos()
+            .Any(c => c.Prova.Id == provaSelecionada.Id && c.Aluno.Id == alunoSelecionado.Id);
+
+        if (alunoJaFezAProva)
+            ModelState.AddModelError(nameof(viewModel.AlunoId), "Este aluno já possui uma correção registrada para esta prova.");
+
+        // VALIDAÇÃO 2: O gabarito tem que ter o mesmo tamanho da quantidade de questões da prova
+        if (!string.IsNullOrEmpty(viewModel.GabaritoAluno))
+        {
+            string gabaritoLimpo = viewModel.GabaritoAluno.Replace(" ", "").Trim();
+
+            if (gabaritoLimpo.Length != provaSelecionada.QuantidadeQuestoes)
+            {
+                ModelState.AddModelError(
+                    nameof(viewModel.GabaritoAluno),
+                    $"O gabarito deve conter exatamente {provaSelecionada.QuantidadeQuestoes} letras. Você digitou {gabaritoLimpo.Length}."
+                );
+            }
+        }
+
+        // Se houver erros (validação do C# ou as validações acima)
+        if (!ModelState.IsValid)
+        {
+            // Recarrega os alunos da turma para o dropdown não sumir na tela de erro
+            viewModel = viewModel with
+            {
+                AlunosDisponiveis = repositorioAluno.SelecionarTodos()
+                    .Where(a => a.Turma.Id == provaSelecionada.Turma.Id)
+                    .Select(a => new SelecionarItemViewModel(a.Id, a.Nome)).ToList()
+            };
+
+            return View("/Modulos/Correcoes/Apresentacao/Views/Cadastrar.cshtml", viewModel);
+        }
+
+        // Salva a correção (A sua entidade Correcao já calcula os acertos automaticamente no construtor)
+        Correcao novaCorrecao = new Correcao(provaSelecionada, alunoSelecionado, viewModel.GabaritoAluno!);
+        repositorioCorrecao.Cadastrar(novaCorrecao);
+
+        // Redireciona para a listagem (Tabela)
+        return RedirectToAction(nameof(Listar));
+    }
+
+    [HttpGet]
+    public ActionResult SelecionarProva()
+    {
+        // 1. Busca todas as provas do arquivo JSON
+        var provasCadastradas = repositorioProva.SelecionarTodos();
+
+        // 2. Cria a lista de ViewModels apenas com os dados necessários para a tela (Id e Nome)
+        List<SelecionarItemViewModel> provasDisponiveis = new List<SelecionarItemViewModel>();
+
+        foreach (var p in provasCadastradas)
+        {
+            provasDisponiveis.Add(new SelecionarItemViewModel(p.Id, p.Nome));
+        }
+
+        // 3. Envia a lista para a View através da ViewBag
+        ViewBag.Provas = provasDisponiveis;
+
+        // Retorna o arquivo SelecionarProva.cshtml
+        return View("/Modulos/Correcoes/Apresentacao/Views/SelecionarProva.cshtml");
+    }
+
+    private List<SelecionarItemViewModel>? ObterAlunosDisponiveis()
+    {
+        List<SelecionarItemViewModel> viewModels = new();
 
         foreach (Aluno a in repositorioAluno.SelecionarTodos())
         {
-            SelecionarAlunoViewModel viewModel = new(a.Id, a.Nome);
+            SelecionarItemViewModel viewModel = new(a.Id, a.Nome);
 
             viewModels.Add(viewModel);
         }

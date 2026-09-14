@@ -1,0 +1,80 @@
+@using CorrigindoSimuladoWebApp.Modulos.Correcoes.Apresentacao
+@model CadastrarCorrecaoViewModel
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Lançar Gabarito";
+}
+
+<div class="row justify-content-start mt-4">
+    <div class="col-lg-8 col-xl-6">
+
+        <h2 style="color: #0f2d59;" class="mb-4 fw-bold">Lançar Respostas</h2>
+
+        <form asp-controller="Correcao" asp-action="Cadastrar" method="post"
+              class="card shadow-sm p-4 border-0 bg-white">
+
+            <!-- Campos Ocultos essenciais para o C# lembrar qual prova está sendo corrigida -->
+            <input type="hidden" asp-for="ProvaId" />
+            <input type="hidden" asp-for="NomeProva" />
+            <input type="hidden" asp-for="QuantidadeQuestoes" />
+
+            <!-- Exibição da Prova (Apenas leitura) -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold" style="color: #0f2d59;">Prova Selecionada</label>
+                <input type="text" class="form-control bg-light"
+                       value="@Model.NomeProva (@Model.QuantidadeQuestoes questões)" readonly />
+            </div>
+
+            <!-- Seleção do Aluno (Já filtrado pela turma correta) -->
+            <div class="mb-3">
+                <label asp-for="AlunoId" class="form-label fw-semibold" style="color: #0f2d59;">Aluno</label>
+                <select asp-for="AlunoId" class="form-select">
+                    <option value="">Selecione o aluno...</option>
+                    @if (Model.AlunosDisponiveis != null)
+                    {
+                        foreach (var aluno in Model.AlunosDisponiveis)
+                        {
+                            <option value="@aluno.Id">@aluno.Nome</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="AlunoId" class="text-danger small"></span>
+            </div>
+
+            <!-- Digitação do Gabarito -->
+            <div class="mb-4">
+                <label asp-for="GabaritoAluno" class="form-label fw-semibold" style="color: #0f2d59;">Gabarito
+                    Respondido</label>
+                    <input asp-for="GabaritoAluno" class="form-control" placeholder="Ex: A B C D E"
+                           style="text-transform: uppercase;" />
+                    <span asp-validation-for="GabaritoAluno" class="text-danger small"></span>
+                    <div class="form-text mt-1 text-muted">
+                        <i class="bi bi-info-circle"></i> O gabarito deve ter exatamente @Model.QuantidadeQuestoes letras.
+                        Espaços são permitidos.
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn text-white shadow-sm d-flex align-items-center"
+                            style="background-color: #0f2d59; border: none; padding: 10px 24px;">
+                        <i class="bi bi-check-lg fs-5 me-2"></i> Salvar Correção
+                    </button>
+
+                    <a asp-controller="Correcao" asp-action="SelecionarProva"
+                       class="btn btn-outline-secondary d-flex align-items-center" style="padding: 10px 20px;">
+                        <i class="bi bi-arrow-return-left me-2"></i> Voltar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            // Trava o input para aceitar apenas letras de A a E e espaços em branco, convertendo para maiúscula
+            document.getElementById('GabaritoAluno').addEventListener('input', function (e) {
+                this.value = this.value.replace(/[^a-eA-E\s]/g, '').toUpperCase();
+            });
+        </script>
+    }

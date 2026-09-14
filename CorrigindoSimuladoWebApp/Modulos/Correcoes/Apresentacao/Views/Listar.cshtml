@@ -17,6 +17,7 @@
                 <tr>
                     <th>Prova</th>
                     <th>Aluno</th>
+                    <th>Acertos</th>
                     <th class="text-end">Ações</th>
                 </tr>
             </thead>
@@ -28,7 +29,7 @@
                         <tr>
                             <td class="fw-semibold">@correcao.NomeProva</td>
                             <td>@correcao.NomeAluno</td>
-
+                            <td>@correcao.NumeroAcertos</td>
                             <!-- Coluna dos Botões alinhada à direita -->
                             <td class="text-end">
                                 <a asp-controller="Correcao" asp-action="Editar" asp-route-id="@correcao.Id"

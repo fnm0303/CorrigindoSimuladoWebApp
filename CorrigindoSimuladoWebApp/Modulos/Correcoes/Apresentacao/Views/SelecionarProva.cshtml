@@ -1,0 +1,42 @@
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Selecionar Prova para Correção";
+}
+
+<div class="row justify-content-start mt-4">
+    <div class="col-lg-8 col-xl-6">
+
+        <h2 style="color: #0f2d59;" class="mb-4 fw-bold">Selecionar Prova</h2>
+
+        <!-- Note que o form envia os dados via GET para a action Cadastrar -->
+        <form asp-controller="Correcao" asp-action="Cadastrar" method="get"
+              class="card shadow-sm p-4 border-0 bg-white">
+
+            <div class="mb-4">
+                <label for="provaId" class="form-label fw-semibold" style="color: #0f2d59;">Escolha a Prova a ser
+                    corrigida</label>
+                    <select name="provaId" id="provaId" class="form-select" required>
+                        <option value="">Selecione uma prova...</option>
+                        @if (ViewBag.Provas != null)
+                        {
+                            foreach (var prova in ViewBag.Provas)
+                            {
+                                <option value="@prova.Id">@prova.Nome</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn text-white shadow-sm d-flex align-items-center"
+                            style="background-color: #0f2d59; border: none; padding: 10px 24px;">
+                        <i class="bi bi-arrow-right-circle fs-5 me-2"></i> Continuar
+                    </button>
+                    <a asp-controller="Correcao" asp-action="IndexCorrecoes" class="btn btn-dark d-flex align-items-center"
+                       style="padding: 10px 20px;">
+                        <i class="bi bi-arrow-return-left me-2"></i> Voltar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
