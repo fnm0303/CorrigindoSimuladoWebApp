@@ -31,22 +31,40 @@ public sealed class CorrecaoController : Controller
     }
 
     [HttpGet]
-    public ActionResult Listar()
+    public ActionResult Listar(int provaId)
     {
-        List<ListarCorrecaoViewModel> viewModels = new List<ListarCorrecaoViewModel>();
+        Prova? provaSelecionada = repositorioProva.SelecionarPorId(provaId);
 
-        foreach (Correcao c in repositorioCorrecao.SelecionarTodos())
-        {
-            ListarCorrecaoViewModel viewModel = new ListarCorrecaoViewModel(
+        if (provaSelecionada == null)
+            return RedirectToAction("ListarProvasCorrigidas");
+
+        // Filtra as correções APENAS para a prova selecionada
+        // (Ajuste o "ListarCorrecaoViewModel" de acordo com o nome que você usa na sua listagem atual)
+        var correcoes = repositorioCorrecao.SelecionarTodos()
+            .Where(c => c.Prova.Id == provaId)
+            .Select(c => new ListarCorrecaoViewModel(
                 c.Id,
-                c.Prova.Nome,
                 c.Aluno.Nome,
+                c.Prova.Nome,
                 c.NumeroAcertos
-            );
+            )).ToList();
 
-            viewModels.Add(viewModel);
-        }
-        return View("/Modulos/Correcoes/Apresentacao/Views/Listar.cshtml", viewModels);
+        // Guardamos o nome e o ID da prova para mostrar no título da tela de listagem
+        ViewBag.NomeProva = provaSelecionada.Nome;
+        ViewBag.ProvaId = provaSelecionada.Id;
+
+        return View("/Modulos/Correcoes/Apresentacao/Views/Listar.cshtml", correcoes);
+    }
+
+    [HttpGet]
+    public ActionResult ListarProvasCorrigidas()
+    {
+        // Busca todas as provas disponíveis para o usuário escolher
+        List<ListarProvasCorrigidasViewModel> provas = repositorioProva.SelecionarTodos()
+            .Select(p => new ListarProvasCorrigidasViewModel(p.Id, p.Nome, p.Turma.Nome))
+            .ToList();
+
+        return View("/Modulos/Correcoes/Apresentacao/Views/ListarProvasCorrigidas.cshtml", provas);
     }
 
     [HttpGet]
@@ -118,7 +136,7 @@ public sealed class CorrecaoController : Controller
                     .Select(a => new SelecionarItemViewModel(a.Id, a.Nome)).ToList()
             };
 
-            return View("/Modulos/Correcoes/Apresentacao/Views/Cadastrar.cshtml", viewModel);
+            return View("/Modulos/Correcoes/Apresentacao/Views/Cadastrar.cshtml", new { provaId = viewModel.ProvaId });
         }
 
         // Salva a correção (A sua entidade Correcao já calcula os acertos automaticamente no construtor)

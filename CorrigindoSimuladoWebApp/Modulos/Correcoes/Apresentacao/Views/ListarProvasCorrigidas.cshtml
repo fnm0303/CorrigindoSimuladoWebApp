@@ -1,0 +1,54 @@
+@using CorrigindoSimuladoWebApp.Modulos.Correcoes.Apresentacao
+@model IEnumerable<ListarProvasCorrigidasViewModel>
+
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Selecionar Prova para Listagem";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="color: #0f2d59;" class="fw-bold mb-0">Listar Correções</h2>
+            <a asp-action="IndexCorrecoes" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-return-left"></i> Voltar
+            </a>
+        </div>
+
+        <p class="text-muted fs-5 mb-4">Selecione a prova que deseja visualizar as notas dos alunos:</p>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-warning shadow-sm border-0">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Não há provas cadastradas no momento.
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm border-0 bg-white">
+                <div class="list-group list-group-flush rounded">
+                    @foreach (var prova in Model)
+                    {
+                        <div
+                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-4">
+                            <div>
+                                <h5 class="mb-1 text-dark fw-bold">@prova.Nome</h5>
+                                <span
+                                    class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-3 py-1">
+                                    <i class="bi bi-people-fill me-1"></i> Turma: @prova.NomeTurma
+                                </span>
+                            </div>
+
+                            <!-- Botão que envia o ID da prova para a tela de Listar -->
+                            <a asp-action="Listar" asp-route-provaId="@prova.Id"
+                               class="btn text-white px-4 py-2 rounded-pill shadow-sm" style="background-color: #0f2d59;">
+                                <i class="bi bi-list-check me-2"></i> Ver Notas
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -44,3 +44,9 @@ public record DetalhesCorrecaoViewModel(
     int TotalQuestoes,
     List<DetalheQuestaoViewModel> Questoes
 );
+
+public record ListarProvasCorrigidasViewModel(
+    int Id,
+    string Nome,
+    string NomeTurma
+);
