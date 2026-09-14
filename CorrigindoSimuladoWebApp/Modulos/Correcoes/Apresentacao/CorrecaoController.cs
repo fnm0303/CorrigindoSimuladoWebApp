@@ -150,6 +150,49 @@ public sealed class CorrecaoController : Controller
         return View("/Modulos/Correcoes/Apresentacao/Views/SelecionarProva.cshtml");
     }
 
+    [HttpGet]
+    public ActionResult DetalharCorrecao(int id)
+    {
+        // 1. Busca a correção no banco/arquivo
+        Correcao? correcao = repositorioCorrecao.SelecionarPorId(id);
+
+        if (correcao == null)
+            return NotFound();
+
+        // 2. Removemos os espaços em branco para garantir que as posições batam perfeitamente
+        string gabaritoAluno = correcao.GabaritoAluno.Replace(" ", "").ToUpper();
+        string gabaritoProva = correcao.Prova.GabaritoCorreto.Replace(" ", "").ToUpper();
+
+        List<DetalheQuestaoViewModel> questoes = new List<DetalheQuestaoViewModel>();
+
+        // 3. Montamos a lista comparando questão por questão
+        for (int i = 0; i < correcao.Prova.QuantidadeQuestoes; i++)
+        {
+            char respostaAluno = gabaritoAluno[i];
+            char respostaCorreta = gabaritoProva[i];
+            bool acertou = respostaAluno == respostaCorreta;
+
+            questoes.Add(new DetalheQuestaoViewModel(
+                NumeroQuestao: i + 1,
+                RespostaAluno: respostaAluno,
+                RespostaCorreta: respostaCorreta,
+                Acertou: acertou
+            ));
+        }
+
+        // 4. Construímos a ViewModel principal
+        DetalhesCorrecaoViewModel viewModel = new DetalhesCorrecaoViewModel(
+            correcao.Id,
+            correcao.Prova.Nome,
+            correcao.Aluno.Nome,
+            correcao.NumeroAcertos,
+            correcao.Prova.QuantidadeQuestoes,
+            questoes
+        );
+
+        return View("/Modulos/Correcoes/Apresentacao/Views/DetalharCorrecao.cshtml", viewModel);
+    }
+
     private List<SelecionarItemViewModel>? ObterAlunosDisponiveis()
     {
         List<SelecionarItemViewModel> viewModels = new();

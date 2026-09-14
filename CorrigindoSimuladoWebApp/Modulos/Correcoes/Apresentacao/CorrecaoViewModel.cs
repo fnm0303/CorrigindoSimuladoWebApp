@@ -26,3 +26,21 @@ public record CadastrarCorrecaoViewModel(
 
     List<SelecionarItemViewModel>? AlunosDisponiveis
 );
+
+// ViewModel que representa cada linha da tabela de detalhes
+public record DetalheQuestaoViewModel(
+    int NumeroQuestao,
+    char RespostaAluno,
+    char RespostaCorreta,
+    bool Acertou
+);
+
+// ViewModel que empacota tudo para mandar para a tela
+public record DetalhesCorrecaoViewModel(
+    int CorrecaoId,
+    string NomeProva,
+    string NomeAluno,
+    int Acertos,
+    int TotalQuestoes,
+    List<DetalheQuestaoViewModel> Questoes
+);
