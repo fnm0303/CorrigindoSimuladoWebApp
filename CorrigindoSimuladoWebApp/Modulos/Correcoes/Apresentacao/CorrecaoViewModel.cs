@@ -50,3 +50,8 @@ public record ListarProvasCorrigidasViewModel(
     string Nome,
     string NomeTurma
 );
+
+public record ExcluirCorrecaoViewModel(
+    int Id,
+    string NomeAluno
+);

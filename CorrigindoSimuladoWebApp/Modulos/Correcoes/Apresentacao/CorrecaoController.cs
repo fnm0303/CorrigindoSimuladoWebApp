@@ -59,8 +59,12 @@ public sealed class CorrecaoController : Controller
     [HttpGet]
     public ActionResult ListarProvasCorrigidas()
     {
-        // Busca todas as provas disponíveis para o usuário escolher
+        // 1. Pega todas as correções cadastradas
+        var todasCorrecoes = repositorioCorrecao.SelecionarTodos();
+
+        // 2. Filtra as provas, pegando apenas aquelas cujo ID aparece na lista de correções
         List<ListarProvasCorrigidasViewModel> provas = repositorioProva.SelecionarTodos()
+            .Where(prova => todasCorrecoes.Any(correcao => correcao.Prova.Id == prova.Id)) // <-- O FILTRO MÁGICO AQUI
             .Select(p => new ListarProvasCorrigidasViewModel(p.Id, p.Nome, p.Turma.Nome))
             .ToList();
 
@@ -144,6 +148,33 @@ public sealed class CorrecaoController : Controller
         repositorioCorrecao.Cadastrar(novaCorrecao);
 
         // Redireciona para a listagem (Tabela)
+        return RedirectToAction(nameof(Listar));
+    }
+
+    [HttpGet]
+    public ActionResult Excluir(int id)
+    {
+        Correcao? correcaoSelecionada = repositorioCorrecao.SelecionarPorId(id);
+
+        if (correcaoSelecionada == null)
+            return NotFound();
+
+        ExcluirAlunoViewModel viewModel = new(
+            correcaoSelecionada.Id,
+            correcaoSelecionada.Aluno.Nome
+        );
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public ActionResult Excluir(ExcluirCorrecaoViewModel viewModel)
+    {
+        bool conseguiuExcluir = repositorioCorrecao.Excluir(viewModel.Id);
+
+        if (!conseguiuExcluir)
+            return NotFound();
+
         return RedirectToAction(nameof(Listar));
     }
 
