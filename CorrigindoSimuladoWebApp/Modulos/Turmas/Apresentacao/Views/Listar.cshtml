@@ -6,94 +6,117 @@
 
 <div class="row mt-4">
     <div class="col-12">
-        <a class="btn btn-dark" asp-action="IndexTurmas">
-                <i class="bi bi-arrow-return-left"></i>
-                Voltar
-        </a>
-        <table class="table table-hover table-striped align-middle shadow-sm bg-white">
-            <thead style="--bs-table-bg: #0f2d59; --bs-table-color: white;">
-                <tr>
-                    <th>Nome da Turma</th>
-                    <th>Curso</th>
-                    <th>Ano Letivo</th>
-                    <th class="text-end">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model != null && Model.Any())
-                {
-                    foreach (var turma in Model)
+        <div class="d-flex justify-content-end align-items-center mb-4">
+            <a asp-action="IndexTurmas" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-return-left"></i> Voltar
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle shadow-sm bg-white">
+                <thead style="--bs-table-bg: #0f2d59; --bs-table-color: white;">
+                    <tr>
+                        <th>Nome da Turma</th>
+                        <th>Curso</th>
+                        <th>Ano Letivo</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
                     {
-                        <tr>
-                            <td class="fw-semibold">@turma.Nome</td>
-                            <td>@turma.Curso</td>
-                            <td>@turma.AnoLetivo</td>
+                        foreach (var turma in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@turma.Nome</td>
+                                <td class="text-break">
+                                    @{
+                                        // Garante que o texto não seja nulo antes de substituir
+                                        string cursoTexto = turma.Curso.ToString() ?? "";
 
-                            <!-- Coluna dos Botões alinhada à direita -->
-                            <td class="text-end">
-                                <a asp-controller="Turma" asp-action="Editar" asp-route-id="@turma.Id"
-                                   class="btn btn-sm btn-outline-primary me-2">
-                                    <i class="bi bi-pencil-square"></i> Editar
-                                </a>
+                                        string cursoAbreviado = cursoTexto
+                                            .Replace("EnsinoFundamental", "EF")
+                                            .Replace("EnsinoMedio", "EM");
+                                    }
 
-                                <!-- Botão que abre a janela de confirmação (Modal) -->
-                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                                        data-bs-target="#modalExcluir-@turma.Id">
-                                    <i class="bi bi-trash"></i> Excluir
-                                </button>
+                                    <!-- Nome Completo: Aparece apenas no Tablet e Computador (768px ou mais) -->
+                                    <span class="d-none d-md-inline">@turma.Curso</span>
 
-                                <!-- Janela de Confirmação (Modal Bootstrap) -->
-                                <div class="modal fade text-start" id="modalExcluir-@turma.Id" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
+                                    <!-- Nome Abreviado: Aparece APENAS no Celular (telas menores que 768px) -->
+                                    <span class="d-md-none">@cursoAbreviado</span>
 
-                                            <!-- Cabeçalho do Modal -->
-                                            <div class="modal-header text-white" style="background-color: #0f2d59;">
-                                                <h5 class="modal-title fs-5">Confirmar Exclusão</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                                        aria-label="Fechar"></button>
+                                </td>
+                                <td>@turma.AnoLetivo</td>
+
+                                <!-- Coluna dos Botões alinhada à direita -->
+                                <td class="text-md-end">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                                        <a asp-controller="Turma" asp-action="Editar" asp-route-id="@turma.Id"
+                                           class="btn btn-sm btn-outline-primary flex-grow-1 flex-md-grow-0">
+                                            <i class="bi bi-pencil-square"></i> Editar
+                                        </a>
+
+                                        <!-- Botão que abre a janela de confirmação (Modal) -->
+                                        <button type="button" class="btn btn-sm btn-outline-danger flex-grow-1 flex-md-grow-0"
+                                                data-bs-toggle="modal" data-bs-target="#modalExcluir-@turma.Id">
+                                            <i class="bi bi-trash"></i> Excluir
+                                        </button>
+
+                                        <!-- Janela de Confirmação (Modal Bootstrap) -->
+                                        <div class="modal fade text-start" id="modalExcluir-@turma.Id" tabindex="-1"
+                                             aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+
+                                                    <!-- Cabeçalho do Modal -->
+                                                    <div class="modal-header text-white" style="background-color: #0f2d59;">
+                                                        <h5 class="modal-title fs-5">Confirmar Exclusão</h5>
+                                                        <button type="button" class="btn-close btn-close-white"
+                                                                data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                                    </div>
+
+                                                    <!-- Corpo do Modal -->
+                                                    <div class="modal-body p-4 text-center">
+                                                        <i
+                                                        class="bi bi-exclamation-triangle text-warning display-4 mb-3 d-block"></i>
+                                                        <p class="fs-5 text-dark mb-1">
+                                                            Deseja realmente excluir a turma <strong>@turma.Nome</strong>?
+                                                        </p>
+                                                        <span class="text-muted small">Esta ação não poderá ser desfeita.</span>
+                                                    </div>
+
+                                                    <!-- Rodapé do Modal (Ações) -->
+                                                    <div class="modal-footer bg-light justify-content-center">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                            <i class="bi bi-arrow-return-left"></i> Voltar
+                                                        </button>
+
+                                                        <form asp-controller="Turma" asp-action="Excluir"
+                                                              asp-route-id="@turma.Id" method="post" class="d-inline">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="bi bi-trash"></i> Sim, Excluir
+                                                            </button>
+                                                        </form>
+                                                    </div>
+
+                                                </div>
                                             </div>
-
-                                            <!-- Corpo do Modal -->
-                                            <div class="modal-body p-4 text-center">
-                                                <i class="bi bi-exclamation-triangle text-warning display-4 mb-3 d-block"></i>
-                                                <p class="fs-5 text-dark mb-1">
-                                                    Deseja realmente excluir a turma <strong>@turma.Nome</strong>?
-                                                </p>
-                                                <span class="text-muted small">Esta ação não poderá ser desfeita.</span>
-                                            </div>
-
-                                            <!-- Rodapé do Modal (Ações) -->
-                                            <div class="modal-footer bg-light justify-content-center">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                    <i class="bi bi-arrow-return-left"></i> Voltar
-                                                </button>
-
-                                                <form asp-controller="Turma" asp-action="Excluir" asp-route-id="@turma.Id"
-                                                      method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-danger">
-                                                        <i class="bi bi-trash"></i> Sim, Excluir
-                                                    </button>
-                                                </form>
-                                            </div>
-
                                         </div>
                                     </div>
-                                </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                Nenhuma turma cadastrada no momento.
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="4" class="text-center py-4 text-muted">
-                            Nenhuma turma cadastrada no momento.
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

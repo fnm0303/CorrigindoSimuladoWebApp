@@ -14,91 +14,96 @@
                 <i class="bi bi-arrow-return-left"></i> Voltar
             </a>
         </div>
-        <table class="table table-hover table-striped align-middle shadow-sm bg-white">
-            <thead style="--bs-table-bg: #0f2d59; --bs-table-color: white;">
-                <tr>
-                    <th>Prova</th>
-                    <th>Aluno</th>
-                    <th>Acertos</th>
-                    <th class="text-end">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model != null && Model.Any())
-                {
-                    foreach (var correcao in Model)
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle shadow-sm bg-white">
+                <thead style="--bs-table-bg: #0f2d59; --bs-table-color: white;">
+                    <tr>
+                        <th>Prova</th>
+                        <th>Aluno</th>
+                        <th>Acertos</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
                     {
-                        <tr>
-                            <td class="fw-semibold">@correcao.NomeProva</td>
-                            <td>@correcao.NomeAluno</td>
-                            <td>@correcao.NumeroAcertos</td>
-                            <!-- Coluna dos Botões alinhada à direita -->
-                            <td class="text-end">
-                                <a asp-controller="Correcao" asp-action="DetalharCorrecao" asp-route-id="@correcao.Id"
-                                   class="btn btn-sm btn-outline-info me-2">
-                                    <i class="bi bi-card-list"></i> Detalhes
-                                </a>
+                        foreach (var correcao in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@correcao.NomeProva</td>
+                                <td>@correcao.NomeAluno</td>
+                                <td>@correcao.NumeroAcertos</td>
+                                <!-- Coluna dos Botões alinhada à direita -->
+                                <td class="text-md-end">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                                        <a asp-controller="Correcao" asp-action="DetalharCorrecao" asp-route-id="@correcao.Id"
+                                           class="btn btn-sm btn-outline-info flex-grow-1 flex-md-grow-0">
+                                            <i class="bi bi-card-list"></i> Detalhes
+                                        </a>
 
-                                <!-- Botão que abre a janela de confirmação (Modal) -->
-                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                                        data-bs-target="#modalExcluir-@correcao.Id">
-                                    <i class="bi bi-trash"></i> Excluir
-                                </button>
+                                        <!-- Botão que abre a janela de confirmação (Modal) -->
+                                        <button type="button" class="btn btn-sm btn-outline-danger flex-grow-1 flex-md-grow-0"
+                                                data-bs-toggle="modal" data-bs-target="#modalExcluir-@correcao.Id">
+                                            <i class="bi bi-trash"></i> Excluir
+                                        </button>
 
-                                <!-- Janela de Confirmação (Modal Bootstrap) -->
-                                <div class="modal fade text-start" id="modalExcluir-@correcao.Id" tabindex="-1"
-                                     aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
+                                        <!-- Janela de Confirmação (Modal Bootstrap) -->
+                                        <div class="modal fade text-start" id="modalExcluir-@correcao.Id" tabindex="-1"
+                                             aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
 
-                                            <!-- Cabeçalho do Modal -->
-                                            <div class="modal-header text-white" style="background-color: #0f2d59;">
-                                                <h5 class="modal-title fs-5">Confirmar Exclusão</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                                        aria-label="Fechar"></button>
+                                                    <!-- Cabeçalho do Modal -->
+                                                    <div class="modal-header text-white" style="background-color: #0f2d59;">
+                                                        <h5 class="modal-title fs-5">Confirmar Exclusão</h5>
+                                                        <button type="button" class="btn-close btn-close-white"
+                                                                data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                                    </div>
+
+                                                    <!-- Corpo do Modal -->
+                                                    <div class="modal-body p-4 text-center">
+                                                        <i
+                                                        class="bi bi-exclamation-triangle text-warning display-4 mb-3 d-block"></i>
+                                                        <p class="fs-5 text-dark mb-1">
+                                                            Deseja realmente excluir a correção do aluno
+                                                            <strong>@correcao.NomeProva</strong>?
+                                                        </p>
+                                                        <span class="text-muted small">Esta ação não poderá ser desfeita.</span>
+                                                    </div>
+
+                                                    <!-- Rodapé do Modal (Ações) -->
+                                                    <div class="modal-footer bg-light justify-content-center">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                            <i class="bi bi-arrow-return-left"></i> Voltar
+                                                        </button>
+
+                                                        <form asp-controller="Correcao" asp-action="Excluir"
+                                                              asp-route-id="@correcao.Id" method="post" class="d-inline">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="bi bi-trash"></i> Sim, Excluir
+                                                            </button>
+                                                        </form>
+                                                    </div>
+
+                                                </div>
                                             </div>
-
-                                            <!-- Corpo do Modal -->
-                                            <div class="modal-body p-4 text-center">
-                                                <i class="bi bi-exclamation-triangle text-warning display-4 mb-3 d-block"></i>
-                                                <p class="fs-5 text-dark mb-1">
-                                                    Deseja realmente excluir a correção do aluno
-                                                    <strong>@correcao.NomeProva</strong>?
-                                                </p>
-                                                <span class="text-muted small">Esta ação não poderá ser desfeita.</span>
-                                            </div>
-
-                                            <!-- Rodapé do Modal (Ações) -->
-                                            <div class="modal-footer bg-light justify-content-center">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                    <i class="bi bi-arrow-return-left"></i> Voltar
-                                                </button>
-
-                                                <form asp-controller="Correcao" asp-action="Excluir" asp-route-id="@correcao.Id"
-                                                      method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-danger">
-                                                        <i class="bi bi-trash"></i> Sim, Excluir
-                                                    </button>
-                                                </form>
-                                            </div>
-
                                         </div>
                                     </div>
-                                </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                Nenhuma correção cadastrada no momento.
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="4" class="text-center py-4 text-muted">
-                            Nenhuma correção cadastrada no momento.
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

@@ -11,15 +11,44 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     
     <title>@ViewBag.Titulo | Correção Inteligente</title>
+
+    <style>
+        /* Regra para a logo ser fluida */
+        .logo-responsive {
+            width: 100%;
+            height: auto;
+            max-width: 170px; /* Tamanho ideal para CELULAR (cabe ao lado do botão menu) */
+            display: block;
+        }
+
+        /* Quando a tela for de COMPUTADOR/TABLET (acima de 768px) */
+        @@media (min-width: 768px) {
+            .logo-responsive {
+                max-width: 400px; /* Volta ao tamanho original no PC */
+            }
+        }
+    </style>
 </head>
 
 <body style="background-color: lightgreen;">
-    <nav class="navbar navbar-light bg-white shadow-sm py-1">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <a class="navbar-brand" href="#">
-                <img src="~/img/logoTopo_navBar.png" alt="Logo" width="400" class="d-inline-block align-text-top">
-            </a>
-            <span class="navbar-text fw-semibold text-secondary fs-5">
+    <nav class="navbar navbar-light bg-white shadow-sm py-2">
+        <div class="container-fluid d-flex justify-content-between align-items-center flex-nowrap">
+        
+            <!-- Lado Esquerdo: Botão Hamburguer + Logo -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Botão do Menu (Aparece Apenas no Celular) -->
+                <button class="navbar-toggler border-0 p-1 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-controls="menuLateral">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Logo (Sem o width="400" no HTML) -->
+                <a class="navbar-brand m-0 p-0" href="#">
+                    <img src="~/img/logoTopo_navBar.png" alt="Logo" class="logo-responsive">
+                </a>
+            </div>
+
+            <!-- Lado Direito: Versão (Escondida em telas muito pequenas para não encavalar) -->
+            <span class="navbar-text fw-semibold text-secondary fs-6 d-none d-sm-block text-nowrap ms-2">
                 versão 1.0
             </span>
         </div>
@@ -28,33 +57,45 @@
     <div class="d-flex" style="min-height: calc(100vh - 54px);">
         
         <!-- Menu Lateral Esquerdo -->
-        <aside class="bg-white text-dark p-3 shadow-sm d-flex flex-column" style="width: 210px; min-width: 210px;">
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item">
-                    <a class="nav-link mb-2 text-dark" style="background-color: lightgreen;" asp-controller="Home" asp-action="Index">Início</a>
-                </li>
-                <li>
-                    <a class="nav-link link-dark mb-2" asp-controller="Turma" asp-action="IndexTurmas">Turmas</a>
-                </li>
-                <li>
-                    <a class="nav-link link-dark mb-2" asp-controller="Aluno" asp-action="IndexAlunos">Alunos</a>
-                </li>
-                <li>
-                    <a class="nav-link link-dark mb-2" asp-controller="Prova" asp-action="IndexProvas">Provas</a>
-                </li>
-                <li>
-                    <a class="nav-link link-dark mb-2" asp-controller="Correcao" asp-action="IndexCorrecoes">Correção</a>
-                </li>
-            </ul>
+        <aside class="offcanvas-md offcanvas-start bg-white text-dark shadow-sm d-flex flex-column" 
+               tabindex="-1" id="menuLateral" 
+               style="width: 210px; min-width: 210px;">
+            
+            <!-- Cabeçalho do Menu (Aparece SÓ no celular para ter o botão de fechar o menu) -->
+            <div class="offcanvas-header d-md-none pb-0 border-bottom">
+                <h5 class="offcanvas-title fw-bold" style="color: #0f2d59;">Menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#menuLateral" aria-label="Fechar"></button>
+            </div>
 
-            <div class="mt-auto text-center pb-3">
-                <img src="~/img/logoTipo_menu.png" alt="Logotipo" style="max-height: 150px; max-width: 100%;">
+            <!-- Corpo do Menu -->
+            <div class="offcanvas-body d-flex flex-column p-3 h-100">
+                <ul class="nav nav-pills flex-column mb-auto w-100">
+                    <li class="nav-item">
+                        <a class="nav-link mb-2 text-dark" style="background-color: lightgreen;" asp-controller="Home" asp-action="Index">Início</a>
+                    </li>
+                    <li>
+                        <a class="nav-link link-dark mb-2" asp-controller="Turma" asp-action="IndexTurmas">Turmas</a>
+                    </li>
+                    <li>
+                        <a class="nav-link link-dark mb-2" asp-controller="Aluno" asp-action="IndexAlunos">Alunos</a>
+                    </li>
+                    <li>
+                        <a class="nav-link link-dark mb-2" asp-controller="Prova" asp-action="IndexProvas">Provas</a>
+                    </li>
+                    <li>
+                        <a class="nav-link link-dark mb-2" asp-controller="Correcao" asp-action="IndexCorrecoes">Correção</a>
+                    </li>
+                </ul>
+
+                <div class="mt-auto text-center pt-3">
+                    <img src="~/img/logoTipo_menu.png" alt="Logotipo" style="max-height: 150px; max-width: 100%;">
+                </div>
             </div>
         </aside>
 
-    <main class="container py-5">
+    <main class="container-fluid py-4 w-100 overflow-hidden">
         <header class="mb-4">
-            <h1 class="display-5 fw-bold mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">@ViewBag.Titulo</h1>
+            <h1 class="display-6 fw-bold mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">@ViewBag.Titulo</h1>
         </header>
 
         @RenderBody()
