@@ -4,40 +4,65 @@
     ViewBag.Titulo = "Cadastro de Turma";
 }
 
-<div class="col-12 col-md-10 row justify-content-start">
-    <form class="col-lg-6" asp-action="Cadastrar" method="post">
-        <!-- Campo Nome -->
-        <div class="mb-3">
-            <label asp-for="Nome" class="form-label"></label>
-            <input asp-for="Nome" class="form-control" />
-            <span asp-validation-for="Nome" class="text-danger"></span>
-        </div>
+<div class="row justify-content-center my-3 my-md-4">
+    <div class="col-12 col-md-10 col-lg-8">
+        <form asp-action="Cadastrar" method="post">
+            <div class="p-4 p-md-5 bg-white shadow-sm rounded-4 border-start border-5"
+                 style="border-color: #0f2d59 !important;">
 
-        <!-- Campo Curso (Dropdown gerado automaticamente pelo Enum) -->
-        <div class="mb-3">
-            <label asp-for="Curso" class="form-label"></label>
-            <select asp-for="Curso" asp-items="Html.GetEnumSelectList<TipoCurso>()" class="form-select">
-                <option value="">Selecione um curso...</option>
-            </select>
-            <span asp-validation-for="Curso" class="text-danger"></span>
-        </div>
+                <!-- Cabeçalho -->
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-2" style="color: #0f2d59; letter-spacing: -0.5px;">
+                        <i class="bi bi-plus-circle me-2"></i>Cadastrar Nova Turma
+                    </h3>
+                    <p class="text-muted fs-6 mb-0">Preencha os dados abaixo para registrar uma nova turma no sistema.
+                    </p>
+                </div>
 
-        <!-- Campo Ano Letivo -->
-        <div class="mb-3">
-            <label asp-for="AnoLetivo" class="form-label"></label>
-            <input asp-for="AnoLetivo" type="number" class="form-control" />
-            <span asp-validation-for="AnoLetivo" class="text-danger"></span>
-        </div>
+                <!-- Campos (Grid interno) -->
+                <div class="row g-3 g-md-4">
+                    <div class="col-12">
+                        <label asp-for="Nome" class="form-label fw-semibold" style="color: #0f2d59;"></label>
+                        <input asp-for="Nome" class="form-control form-control-lg shadow-sm"
+                               placeholder="Ex: 1º Ano A" />
+                        <span asp-validation-for="Nome" class="text-danger small mt-1 d-block"></span>
+                    </div>
 
-        <div class="d-flex gap-3 mt-4">
-            <button class="btn btn-primary" type="submit">
-                <i class="bi bi-check"></i>
-                Cadastrar
-            </button>
-            <a class="btn btn-outline-secondary" asp-action="IndexTurmas">
-                <i class="bi bi-arrow-return-left"></i>
-                Voltar
-            </a>
-        </div>
-    </form>
+                    <div class="col-12 col-md-8">
+                        <label asp-for="Curso" class="form-label fw-semibold" style="color: #0f2d59;"></label>
+                        <select asp-for="Curso" asp-items="Html.GetEnumSelectList<TipoCurso>()"
+                                class="form-select form-select-lg shadow-sm">
+                            <option value="">Selecione um curso...</option>
+                        </select>
+                        <span asp-validation-for="Curso" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label asp-for="AnoLetivo" class="form-label fw-semibold" style="color: #0f2d59;"></label>
+                        <input asp-for="AnoLetivo" type="number" class="form-control form-control-lg shadow-sm"
+                               placeholder="Ex: 2024" />
+                        <span asp-validation-for="AnoLetivo" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4 text-muted" style="opacity: 0.15;">
+
+                <!-- Botões -->
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+                    <a asp-action="IndexTurmas"
+                       class="btn btn-lg bg-white shadow-sm rounded-pill px-4 text-nowrap order-2 order-sm-1"
+                       style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                        <i class="bi bi-arrow-left me-2"></i>Voltar
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-lg text-white shadow-sm rounded-pill px-4 text-nowrap order-1 order-sm-2"
+                            style="background-color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                        <i class="bi bi-check-lg fs-5 me-2"></i>Cadastrar Turma
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
 </div>

@@ -3,40 +3,82 @@
     ViewBag.Titulo = "Selecionar Prova para Correção";
 }
 
-<div class="row justify-content-start mt-4">
-    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+<div class="row justify-content-center my-3 my-md-4">
+    <div class="col-12 col-md-10 col-lg-8 col-xl-7 col-xxl-6">
 
-        <h2 style="color: #0f2d59;" class="mb-4 fw-bold">Selecionar Prova</h2>
+        <!-- Formulário via GET envolvendo o card -->
+        <form asp-controller="Correcao" asp-action="Cadastrar" method="get">
 
-        <!-- Note que o form envia os dados via GET para a action Cadastrar -->
-        <form asp-controller="Correcao" asp-action="Cadastrar" method="get"
-              class="card shadow-sm p-4 border-0 bg-white">
+            <!-- Card Principal -->
+            <div class="p-4 p-md-5 bg-white shadow-sm rounded-4 border-start border-5"
+                 style="border-color: #0f2d59 !important;">
 
-            <div class="mb-4">
-                <label for="provaId" class="form-label fw-semibold" style="color: #0f2d59;">Escolha a Prova a ser
-                    corrigida</label>
-                    <select name="provaId" id="provaId" class="form-select" required>
-                        <option value="">Selecione uma prova...</option>
-                        @if (ViewBag.Provas != null)
-                        {
-                            foreach (var prova in ViewBag.Provas)
-                            {
-                                <option value="@prova.Id">@prova.Nome</option>
-                            }
-                        }
-                    </select>
-                </div>
+                <!-- Cabeçalho -->
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-2 d-flex align-items-center flex-wrap gap-2"
+                        style="color: #0f2d59; letter-spacing: -0.5px;">
+                        <i class="bi bi-check2-square me-1"></i>Selecionar Prova
 
-                <div class="d-flex gap-3">
-                    <button type="submit" class="btn text-white shadow-sm d-flex align-items-center"
-                            style="background-color: #0f2d59; border: none; padding: 10px 24px;">
-                        <i class="bi bi-arrow-right-circle fs-5 me-2"></i> Continuar
-                    </button>
-                    <a asp-controller="Correcao" asp-action="IndexCorrecoes" class="btn btn-dark d-flex align-items-center"
-                       style="padding: 10px 20px;">
-                        <i class="bi bi-arrow-return-left me-2"></i> Voltar
-                    </a>
-                </div>
-            </form>
+                        <!-- Badge temática -->
+                        <span class="badge fs-6 rounded-pill fw-normal"
+                              style="background-color: #e3ebe3; color: #0f2d59;">
+                            Módulo de Correção
+                        </span>
+                    </h3>
+                    <p class="text-muted fs-6 mb-0">Escolha a prova na lista abaixo para iniciar o processo de correção
+                        dos gabaritos.</p>
+                    </div>
+
+                    <!-- Grid de Campos -->
+                    <div class="row g-3 g-md-4">
+
+                        <!-- Campo de Seleção (Linha inteira) -->
+                        <div class="col-12">
+                            <label for="provaId" class="form-label fw-semibold" style="color: #0f2d59;">Prova a ser
+                                corrigida</label>
+                                <select name="provaId" id="provaId" class="form-select form-select-lg shadow-sm" required>
+                                    <option value="">Selecione uma prova...</option>
+                                    @if (ViewBag.Provas != null)
+                                    {
+                                        foreach (var prova in ViewBag.Provas)
+                                        {
+                                            <option value="@prova.Id">@prova.Nome</option>
+                                        }
+                                    }
+                                </select>
+                                <!-- Texto de ajuda opcional -->
+                                <div class="form-text mt-2 text-muted small">
+                                    <i class="bi bi-info-circle me-1"></i>Apenas provas previamente cadastradas no sistema
+                                    aparecem nesta lista.
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Divisória -->
+                        <hr class="my-4 text-muted" style="opacity: 0.15;">
+
+                        <!-- Botões de Ação -->
+                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+
+                            <!-- Botão Voltar -->
+                            <a asp-controller="Correcao" asp-action="IndexCorrecoes"
+                               class="btn btn-lg bg-white shadow-sm rounded-pill px-4 text-nowrap order-2 order-sm-1"
+                               style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                                <i class="bi bi-arrow-left me-2"></i>Voltar
+                            </a>
+
+                            <!-- Botão Continuar -->
+                            <button type="submit"
+                                    class="btn btn-lg text-white shadow-sm rounded-pill px-4 text-nowrap order-1 order-sm-2"
+                                    style="background-color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                                Continuar <i class="bi bi-arrow-right-circle fs-5 ms-2"></i>
+                            </button>
+
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
         </div>
-    </div>

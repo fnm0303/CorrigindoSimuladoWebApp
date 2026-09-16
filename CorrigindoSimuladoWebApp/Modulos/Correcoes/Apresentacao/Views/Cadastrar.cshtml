@@ -5,76 +5,120 @@
     ViewBag.Titulo = "Lançar Gabarito";
 }
 
-<div class="row justify-content-start mt-4">
-    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+<div class="row justify-content-center my-3 my-md-4">
+    <div class="col-12 col-md-10 col-lg-8 col-xl-7 col-xxl-6">
 
-        <h2 style="color: #0f2d59;" class="mb-4 fw-bold">Lançar Respostas</h2>
+        <form asp-controller="Correcao" asp-action="Cadastrar" method="post">
 
-        <form asp-controller="Correcao" asp-action="Cadastrar" method="post"
-              class="card shadow-sm p-4 border-0 bg-white">
-
-            <!-- Campos Ocultos essenciais para o C# lembrar qual prova está sendo corrigida -->
+            <!-- Campos Ocultos (Hidden) -->
             <input type="hidden" asp-for="ProvaId" />
             <input type="hidden" asp-for="NomeProva" />
             <input type="hidden" asp-for="QuantidadeQuestoes" />
 
-            <!-- Exibição da Prova (Apenas leitura) -->
-            <div class="mb-3">
-                <label class="form-label fw-semibold" style="color: #0f2d59;">Prova Selecionada</label>
-                <input type="text" class="form-control bg-light"
-                       value="@Model.NomeProva (@Model.QuantidadeQuestoes questões)" readonly />
-            </div>
+            <!-- Card Principal -->
+            <div class="p-4 p-md-5 bg-white shadow-sm rounded-4 border-start border-5"
+                 style="border-color: #0f2d59 !important;">
 
-            <!-- Seleção do Aluno (Já filtrado pela turma correta) -->
-            <div class="mb-3">
-                <label asp-for="AlunoId" class="form-label fw-semibold" style="color: #0f2d59;">Aluno</label>
-                <select asp-for="AlunoId" class="form-select">
-                    <option value="">Selecione o aluno...</option>
-                    @if (Model.AlunosDisponiveis != null)
-                    {
-                        foreach (var aluno in Model.AlunosDisponiveis)
-                        {
-                            <option value="@aluno.Id">@aluno.Nome</option>
-                        }
-                    }
-                </select>
-                <span asp-validation-for="AlunoId" class="text-danger small"></span>
-            </div>
+                <!-- Cabeçalho -->
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-2 d-flex align-items-center flex-wrap gap-2"
+                        style="color: #0f2d59; letter-spacing: -0.5px;">
+                        <i class="bi bi-pencil-square me-1"></i>Lançar Respostas
 
-            <!-- Digitação do Gabarito -->
-            <div class="mb-4">
-                <label asp-for="GabaritoAluno" class="form-label fw-semibold" style="color: #0f2d59;">Gabarito
-                    Respondido</label>
-                    <input asp-for="GabaritoAluno" class="form-control" placeholder="Ex: A B C D E"
-                           style="text-transform: uppercase;" />
-                    <span asp-validation-for="GabaritoAluno" class="text-danger small"></span>
-                    <div class="form-text mt-1 text-muted">
-                        <i class="bi bi-info-circle"></i> O gabarito deve ter exatamente @Model.QuantidadeQuestoes letras.
-                        Espaços são permitidos.
+                        <!-- Badge temática -->
+                        <span class="badge fs-6 rounded-pill fw-normal"
+                              style="background-color: #e3ebe3; color: #0f2d59;">
+                            Correção
+                        </span>
+                    </h3>
+                    <p class="text-muted fs-6 mb-0">Insira o gabarito preenchido pelo aluno para realizar a correção
+                        automática.</p>
                     </div>
+
+                    <!-- Grid de Campos -->
+                    <div class="row g-3 g-md-4">
+
+                        <!-- Prova Selecionada (Apenas leitura) -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold" style="color: #0f2d59;">Prova Selecionada</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                    class="bi bi-file-text text-muted"></i></span>
+                                    <input type="text" class="form-control form-control-lg bg-light border-start-0 ps-0"
+                                           value="@Model.NomeProva (@Model.QuantidadeQuestoes questões)" readonly />
+                                </div>
+                            </div>
+
+                            <!-- Seleção do Aluno -->
+                            <div class="col-12">
+                                <label asp-for="AlunoId" class="form-label fw-semibold" style="color: #0f2d59;">Aluno</label>
+                                <select asp-for="AlunoId" class="form-select form-select-lg shadow-sm">
+                                    <option value="">Selecione o aluno...</option>
+                                    @if (Model.AlunosDisponiveis != null)
+                                    {
+                                        foreach (var aluno in Model.AlunosDisponiveis)
+                                        {
+                                            <option value="@aluno.Id">@aluno.Nome</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="AlunoId" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <!-- Digitação do Gabarito -->
+                            <div class="col-12">
+                                <label asp-for="GabaritoAluno" class="form-label fw-semibold" style="color: #0f2d59;">Gabarito
+                                    Respondido</label>
+                                    <input asp-for="GabaritoAluno"
+                                           class="form-control form-control-lg shadow-sm font-monospace fs-4 tracking-wider"
+                                           placeholder="Ex: A B C D E" style="text-transform: uppercase; letter-spacing: 2px;" />
+                                    <span asp-validation-for="GabaritoAluno" class="text-danger small mt-1 d-block"></span>
+
+                                    <!-- Alerta Informativo -->
+                                    <div class="alert alert-light border d-flex align-items-center mt-3 mb-0 p-2 small">
+                                        <i class="bi bi-info-circle-fill text-primary me-2 fs-5"></i>
+                                        <div>
+                                            O gabarito deve ter exatamente <strong>@Model.QuantidadeQuestoes letras</strong>. <br
+                                            class="d-none d-sm-block">Espaços em branco são permitidos e ignorados na validação.
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Divisória -->
+                            <hr class="my-4 text-muted" style="opacity: 0.15;">
+
+                            <!-- Botões de Ação -->
+                            <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+
+                                <!-- Botão Voltar (Volta para a seleção de prova) -->
+                                <a asp-controller="Correcao" asp-action="SelecionarProva"
+                                   class="btn btn-lg bg-white shadow-sm rounded-pill px-4 text-nowrap order-2 order-sm-1"
+                                   style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                                    <i class="bi bi-arrow-left me-2"></i>Mudar Prova
+                                </a>
+
+                                <!-- Botão Salvar -->
+                                <button type="submit"
+                                        class="btn btn-lg text-white shadow-sm rounded-pill px-4 text-nowrap order-1 order-sm-2"
+                                        style="background-color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                                    <i class="bi bi-check-lg fs-5 me-2"></i>Salvar Correção
+                                </button>
+
+                            </div>
+
+                        </div>
+                    </form>
+
                 </div>
+            </div>
 
-                <!-- Botões de Ação -->
-                <div class="d-flex gap-3">
-                    <button type="submit" class="btn text-white shadow-sm d-flex align-items-center"
-                            style="background-color: #0f2d59; border: none; padding: 10px 24px;">
-                        <i class="bi bi-check-lg fs-5 me-2"></i> Salvar Correção
-                    </button>
-
-                    <a asp-controller="Correcao" asp-action="SelecionarProva"
-                       class="btn btn-outline-secondary d-flex align-items-center" style="padding: 10px 20px;">
-                        <i class="bi bi-arrow-return-left me-2"></i> Voltar
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    @section Scripts {
-        <script>
-            // Trava o input para aceitar apenas letras de A a E e espaços em branco, convertendo para maiúscula
-            document.getElementById('GabaritoAluno').addEventListener('input', function (e) {
-                this.value = this.value.replace(/[^a-eA-E\s]/g, '').toUpperCase();
-            });
-        </script>
-    }
+            @section Scripts {
+                <script>
+                    // Trava o input para aceitar apenas letras de A a E e espaços em branco, convertendo para maiúscula
+                    document.getElementById('GabaritoAluno').addEventListener('input', function (e) {
+                        this.value = this.value.replace(/[^a-eA-E\s]/g, '').toUpperCase();
+                    });
+                </script>
+            }
