@@ -5,101 +5,150 @@
     ViewBag.Titulo = "Listagem de Provas";
 }
 
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-end align-items-center mb-4">
-            <a asp-action="IndexProvas" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-return-left"></i> Voltar
+<div class="container-fluid px-0 mt-4">
+
+    <!-- Cabeçalho da Lista -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1 d-flex align-items-center gap-2" style="color: #0f2d59; letter-spacing: -0.5px;">
+                <i class="bi bi-file-earmark-text-fill"></i> Provas Cadastradas
+            </h2>
+            <p class="text-muted mb-0">Gerencie as avaliações aplicadas em suas turmas.</p>
+        </div>
+
+        <div>
+            <a asp-action="IndexProvas" class="btn bg-white shadow-sm rounded-pill px-4"
+               style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                <i class="bi bi-arrow-return-left me-2"></i> Voltar
             </a>
         </div>
-        <div class="table-responsive">
-            <table class="table table-hover table-striped align-middle shadow-sm bg-white">
-                <thead style="--bs-table-bg: #0f2d59; --bs-table-color: white;">
-                    <tr>
-                        <th>Nome</th>
-                        <th>Turma</th>
-                        <th class="text-end">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        foreach (var prova in Model)
-                        {
-                            <tr>
-                                <td>@prova.Nome</td>
-                                <td>@prova.NomeTurma</td>
+    </div>
 
-                                <!-- Coluna dos Botões alinhada à direita -->
-                                <td class="text-md-end">
-                                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
-                                        <a asp-controller="Prova" asp-action="Editar" asp-route-id="@prova.Id"
-                                           class="btn btn-sm btn-outline-primary flex-grow-1 flex-md-grow-0">
-                                            <i class="bi bi-pencil-square"></i> Editar
-                                        </a>
+    <!-- Grid de Cards -->
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var prova in Model)
+            {
+                <!-- Card da Prova -->
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 border-start border-5 position-relative hover-card"
+                         style="border-color: #0f2d59 !important;">
+                        <div class="card-body d-flex flex-column p-4">
 
-                                        <!-- Botão que abre a janela de confirmação (Modal) -->
-                                        <button type="button" class="btn btn-sm btn-outline-danger flex-grow-1 flex-md-grow-0"
-                                                data-bs-toggle="modal" data-bs-target="#modalExcluir-@prova.Id">
-                                            <i class="bi bi-trash"></i> Excluir
-                                        </button>
+                            <!-- Ícone -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i class="bi bi-file-earmark-check fs-3" style="color: #0f2d59;"></i>
+                                </div>
+                                <span class="badge bg-light text-dark border rounded-pill fw-semibold shadow-sm">
+                                    Avaliação
+                                </span>
+                            </div>
 
-                                        <!-- Janela de Confirmação (Modal Bootstrap) -->
-                                        <div class="modal fade text-start" id="modalExcluir-@prova.Id" tabindex="-1"
-                                             aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content">
+                            <!-- Nome da Prova -->
+                            <h5 class="card-title fw-bold mb-2 text-truncate" style="color: #0f2d59;" title="@prova.Nome">
+                                @prova.Nome
+                            </h5>
 
-                                                    <!-- Cabeçalho do Modal -->
-                                                    <div class="modal-header text-white" style="background-color: #0f2d59;">
-                                                        <h5 class="modal-title fs-5">Confirmar Exclusão</h5>
-                                                        <button type="button" class="btn-close btn-close-white"
-                                                                data-bs-dismiss="modal" aria-label="Fechar"></button>
-                                                    </div>
+                            <!-- Badge da Turma -->
+                            <div class="mb-4">
+                                <span class="badge rounded-pill fw-normal px-3 py-2"
+                                      style="background-color: #e3ebe3; color: #0f2d59; border: 1px solid #c9d8c9;">
+                                    <i class="bi bi-people-fill me-1"></i>
+                                    @prova.NomeTurma
+                                </span>
+                            </div>
 
-                                                    <!-- Corpo do Modal -->
-                                                    <div class="modal-body p-4 text-center">
-                                                        <i
-                                                        class="bi bi-exclamation-triangle text-warning display-4 mb-3 d-block"></i>
-                                                        <p class="fs-5 text-dark mb-1">
-                                                            Deseja realmente excluir a prova <strong>@prova.Nome</strong>?
-                                                        </p>
-                                                        <span class="text-muted small">Esta ação não poderá ser desfeita.</span>
-                                                    </div>
+                            <!-- Ações -->
+                            <div class="mt-auto d-flex gap-2">
+                                <a asp-controller="Prova" asp-action="Editar" asp-route-id="@prova.Id"
+                                   class="btn btn-sm btn-outline-primary flex-grow-1 rounded-pill fw-semibold">
+                                    <i class="bi bi-pencil-square me-1"></i> Editar
+                                </a>
 
-                                                    <!-- Rodapé do Modal (Ações) -->
-                                                    <div class="modal-footer bg-light justify-content-center">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                            <i class="bi bi-arrow-return-left"></i> Voltar
-                                                        </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger flex-grow-1 rounded-pill fw-semibold"
+                                        data-bs-toggle="modal" data-bs-target="#modalExcluir-@prova.Id">
+                                    <i class="bi bi-trash me-1"></i> Excluir
+                                </button>
+                            </div>
 
-                                                        <form asp-controller="Prova" asp-action="Excluir"
-                                                              asp-route-id="@prova.Id" method="post" class="d-inline">
-                                                            @Html.AntiForgeryToken()
-                                                            <button type="submit" class="btn btn-danger">
-                                                                <i class="bi bi-trash"></i> Sim, Excluir
-                                                            </button>
-                                                        </form>
-                                                    </div>
+                        </div>
+                    </div>
 
-                                                </div>
-                                            </div>
-                                        </div>
+                    <!-- Modal de Exclusão da Prova -->
+                    <div class="modal fade text-start" id="modalExcluir-@prova.Id" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow rounded-4">
+
+                                <div class="modal-header text-white border-0 rounded-top-4" style="background-color: #0f2d59;">
+                                    <h5 class="modal-title fs-5">
+                                        <i class="bi bi-shield-exclamation me-2"></i>Confirmar Exclusão
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                            aria-label="Fechar"></button>
+                                </div>
+
+                                <div class="modal-body p-4 p-md-5 text-center">
+                                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4"
+                                         style="width: 80px; height: 80px;">
+                                        <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 2.5rem;"></i>
                                     </div>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="4" class="text-center py-4 text-muted">
-                                Nenhuma prova cadastrada no momento.
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                                    <p class="fs-5 text-dark mb-2">
+                                        Deseja realmente excluir a prova<br><strong>@prova.Nome</strong>?
+                                    </p>
+                                    <span class="text-danger small fw-semibold">Esta ação não poderá ser desfeita.</span>
+                                </div>
+
+                                <div class="modal-footer bg-light border-0 rounded-bottom-4 justify-content-center gap-2 pb-4">
+                                    <button type="button" class="btn btn-light border shadow-sm rounded-pill px-4"
+                                            data-bs-dismiss="modal">
+                                        Cancelar
+                                    </button>
+                                    <form asp-controller="Prova" asp-action="Excluir" asp-route-id="@prova.Id" method="post"
+                                          class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-danger shadow-sm rounded-pill px-4">
+                                            <i class="bi bi-trash me-2"></i>Sim, Excluir
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fim Modal -->
+
+                </div>
+            }
+        }
+        else
+        {
+            <!-- Estado Vazio (Nenhuma Prova) -->
+            <div class="col-12">
+                <div class="p-5 bg-white shadow-sm rounded-4 border-0 text-center">
+                    <!-- Link de ícone de documento vazio/prancheta para dar contexto -->
+                    <img src="https://cdn-icons-png.flaticon.com/512/3273/3273180.png" alt="Sem dados"
+                         style="width: 120px; opacity: 0.5;" class="mb-4" />
+                    <h4 class="text-dark fw-bold mb-2">Nenhuma prova cadastrada</h4>
+                    <p class="text-muted fs-6 mb-4">
+                        Parece que você ainda não adicionou nenhuma avaliação ao sistema.
+                    </p>
+                </div>
+            </div>
+        }
     </div>
 </div>
+
+<!-- O mesmo estilo de hover -->
+<style>
+    .hover-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(15, 45, 89, 0.1) !important;
+    }
+</style>
