@@ -1,47 +1,64 @@
 @{
     Layout = "_Layout";
-    ViewBag.Titulo = "Gestão de Correções";
+    ViewBag.Titulo = "Correções";
 }
 
 <div class="row gap-3 gap-lg-0 mt-5">
-    <div class="col-12">
+    <div class="col-12 mb-4">
 
-        <!-- Título do Módulo -->
-        <h2 class="display-5 mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">
-            Módulo de Correções
-        </h2>
+        <!-- Card Banner: Sombra suave, bordas arredondadas e detalhe lateral -->
+        <div class="p-4 p-md-5 bg-white shadow-sm rounded-4 border-start border-5"
+             style="border-color: #0f2d59 !important;">
+            <div class="row align-items-center">
 
-        <!-- Linha divisória (ajustei a largura para ficar proporcional ao título) -->
-        <div style="width: 200px; height: 4px; background-color: #0f2d59; border-radius: 2px;" class="mb-4"></div>
+                <!-- Área de Texto -->
+                <div class="col-12 col-xl-4 mb-4 mb-xl-0">
+                    <h2 class="fw-bold mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">
+                        Módulo de Correções
+                        <!-- Badge (Etiqueta) temática -->
+                        <span class="badge fs-6 align-middle ms-2 rounded-pill fw-normal"
+                              style="background-color: #e3ebe3; color: #0f2d59;">
+                            <i class="bi bi-ui-checks me-1"></i>Resultados
+                        </span>
+                    </h2>
 
-        <!-- Descrição -->
-        <p class="fs-5 text-black lh-base mb-4" style="max-width: 600px;">
-            Gerencie as correções da instituição. Cadastre novas correções, busque uma correção específica
-            ou visualize a lista completa.
-        </p>
+                    <!-- Descrição com cor suavizada (.text-muted) -->
+                    <p class="fs-5 text-muted lh-base mb-0">
+                        Gerencie as correções da instituição. Cadastre novas correções, busque uma correção específica
+                        ou visualize a lista completa.
+                    </p>
+                </div>
 
-        <!-- Botões de Ação -->
-        <div class="d-flex flex-column flex-md-row gap-3 mb-4">
-            <!-- Botão Cadastrar (Ação principal, cor preenchida) -->
-            <a asp-controller="Correcao" asp-action="SelecionarProva"
-               class="btn btn-lg text-white shadow-sm d-flex align-items-center text-nowrap"
-               style="background-color: #0f2d59; border: none; padding: 12px 25px; transition: 0.2s;">
-                <i class="bi bi-plus-circle fs-5 me-2"></i> Nova Correção
-            </a>
+                <!-- Área de Ações Rápidas (Botões) -->
+                <div class="col-12 col-xl-8">
+                    <!-- Flexbox com flex-wrap para garantir responsividade perfeita com 3 botões -->
+                    <div class="d-flex flex-column flex-md-row flex-wrap gap-3 justify-content-xl-end">
 
-            <!-- Botão Buscar -->
-            <a asp-controller="Correcao" asp-action="Buscar"
-               class="btn btn-lg bg-white shadow-sm d-flex align-items-center text-nowrap"
-               style="color: #0f2d59; border: 2px solid #0f2d59; padding: 10px 25px; transition: 0.2s;">
-                <i class="bi bi-search fs-5 me-2"></i> Buscar Correção
-            </a>
+                        <!-- Botão Listar (Ação Secundária) -->
+                        <a asp-controller="Correcao" asp-action="ListarProvasCorrigidas"
+                           class="btn btn-lg bg-white shadow-sm d-flex align-items-center justify-content-center rounded-pill px-4 text-nowrap"
+                           style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                            <i class="bi bi-list-ul fs-5 me-2"></i> Listar Correções
+                        </a>
 
-            <!-- Botão Listar (Ação secundária, contorno) -->
-            <a asp-controller="Correcao" asp-action="ListarProvasCorrigidas"
-               class="btn btn-lg bg-white shadow-sm d-flex align-items-center text-nowrap"
-               style="color: #0f2d59; border: 2px solid #0f2d59; padding: 10px 25px; transition: 0.2s;">
-                <i class="bi bi-list-ul fs-5 me-2"></i> Listar Correções
-            </a>
+                        <!-- Botão Buscar (Ação Secundária) -->
+                        <a asp-controller="Correcao" asp-action="Buscar"
+                           class="btn btn-lg bg-white shadow-sm d-flex align-items-center justify-content-center rounded-pill px-4 text-nowrap"
+                           style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                            <i class="bi bi-search fs-5 me-2"></i> Buscar Correção
+                        </a>
+
+                        <!-- Botão Cadastrar/Nova Correção (Ação Principal em Destaque) -->
+                        <a asp-controller="Correcao" asp-action="SelecionarProva"
+                           class="btn btn-lg text-white shadow-sm d-flex align-items-center justify-content-center rounded-pill px-4 text-nowrap"
+                           style="background-color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                            <i class="bi bi-plus-circle fs-5 me-2"></i> Nova Correção
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>
