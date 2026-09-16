@@ -5,68 +5,108 @@
     ViewBag.Titulo = "Edição de Prova";
 }
 
-<div class="row justify-content-start mt-4">
-    <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+<div class="row justify-content-center my-3 my-md-4">
+    <div class="col-12 col-md-10 col-lg-8 col-xl-7 col-xxl-6">
 
-        <h2 style="color: #0f2d59;" class="mb-4 fw-bold">Editar Prova</h2>
+        <form asp-controller="Prova" asp-action="Editar" method="post">
 
-        <form asp-controller="Prova" asp-action="Editar" method="post" class="card shadow-sm p-4 border-0 bg-white">
+            <!-- Id Oculto Essencial para a Edição funcionar no C# -->
+            <input type="hidden" asp-for="Id" />
 
-            <!-- Campo Nome da Prova -->
-            <div class="mb-3">
-                <label asp-for="Nome" class="form-label fw-semibold" style="color: #0f2d59;">Nome da Prova</label>
-                <input asp-for="Nome" class="form-control" placeholder="Ex: Simulado - 1º Bimestre" />
-                <span asp-validation-for="Nome" class="text-danger small"></span>
-            </div>
+            <!-- Card Principal -->
+            <div class="p-4 p-md-5 bg-white shadow-sm rounded-4 border-start border-5"
+                 style="border-color: #0f2d59 !important;">
 
-            <div class="row">
-                <!-- Campo Quantidade de Questões -->
-                <div class="col-md-6 mb-3">
-                    <label asp-for="QuantidadeQuestoes" class="form-label fw-semibold" style="color: #0f2d59;">Qtd. de
-                        Questões</label>
-                        <input asp-for="QuantidadeQuestoes" type="number" class="form-control" placeholder="Ex: 10" min="1"
-                               max="100" />
-                        <span asp-validation-for="QuantidadeQuestoes" class="text-danger small"></span>
-                    </div>
+                <!-- Cabeçalho -->
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-2 d-flex align-items-center flex-wrap gap-2"
+                        style="color: #0f2d59; letter-spacing: -0.5px;">
+                        <i class="bi bi-pencil-square me-1"></i>Editar Prova
 
-                    <!-- Campo Gabarito Correto -->
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="GabaritoCorreto" class="form-label fw-semibold" style="color: #0f2d59;">Gabarito
-                            Correto</label>
-                            <input asp-for="GabaritoCorreto" class="form-control" placeholder="Ex: ABCDE"
-                                   style="text-transform: uppercase;" />
-                            <span asp-validation-for="GabaritoCorreto" class="text-danger small"></span>
+                        <!-- Badge temática -->
+                        <span class="badge fs-6 rounded-pill fw-normal"
+                              style="background-color: #e3ebe3; color: #0f2d59;">
+                            Módulo de Provas
+                        </span>
+                    </h3>
+                    <p class="text-muted fs-6 mb-0">Modifique os detalhes, o gabarito ou a turma vinculada a esta prova.
+                    </p>
+                </div>
+
+                <!-- Grid de Campos -->
+                <div class="row g-3 g-md-4">
+
+                    <!-- Campo Nome da Prova (Linha inteira) -->
+                    <div class="col-12">
+                        <label asp-for="Nome" class="form-label fw-semibold" style="color: #0f2d59;">Nome da
+                            Prova</label>
+                            <input asp-for="Nome" class="form-control form-control-lg shadow-sm"
+                                   placeholder="Ex: Simulado - 1º Bimestre" />
+                            <span asp-validation-for="Nome" class="text-danger small mt-1 d-block"></span>
                         </div>
-                    </div>
 
-                    <!-- Seleção de Turma -->
-                    <div class="mb-4">
-                        <label asp-for="TurmaId" class="form-label fw-semibold" style="color: #0f2d59;">Turma Vinculada</label>
-                        <select asp-for="TurmaId" class="form-select">
-                            <option value="">Selecione uma turma...</option>
-                            @if (Model.TurmasDisponiveis != null)
-                            {
-                                foreach (var turma in Model.TurmasDisponiveis)
-                                {
-                                    <option value="@turma.Id">@turma.Nome</option>
-                                }
-                            }
-                        </select>
-                        <span asp-validation-for="TurmaId" class="text-danger small"></span>
-                    </div>
+                        <!-- Campo Quantidade de Questões (50% da largura em telas médias+) -->
+                        <div class="col-12 col-md-6">
+                            <label asp-for="QuantidadeQuestoes" class="form-label fw-semibold" style="color: #0f2d59;">Qtd.
+                                de Questões</label>
+                                <input asp-for="QuantidadeQuestoes" type="number" class="form-control form-control-lg shadow-sm"
+                                       placeholder="Ex: 10" min="1" max="100" />
+                                <span asp-validation-for="QuantidadeQuestoes" class="text-danger small mt-1 d-block"></span>
+                            </div>
 
-                    <!-- Botões de Ação -->
-                    <div class="d-flex gap-3">
-                        <button type="submit" class="btn text-white shadow-sm d-flex align-items-center"
-                                style="background-color: #0f2d59; border: none; padding: 10px 24px;">
-                            <i class="bi bi-check-lg fs-5 me-2"></i> Editar Prova
-                        </button>
-                        <a asp-controller="Prova" asp-action="IndexProvas"
-                           class="btn btn-outline-secondary d-flex align-items-center" style="padding: 10px 20px;">
-                            <i class="bi bi-arrow-return-left me-2"></i> Voltar
-                        </a>
-                    </div>
+                            <!-- Campo Gabarito Correto (50% da largura em telas médias+) -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="GabaritoCorreto" class="form-label fw-semibold" style="color: #0f2d59;">Gabarito
+                                    Correto</label>
+                                    <input asp-for="GabaritoCorreto"
+                                           class="form-control form-control-lg shadow-sm font-monospace fs-5" placeholder="Ex: ABCDE"
+                                           style="text-transform: uppercase; letter-spacing: 2px;" />
+                                    <span asp-validation-for="GabaritoCorreto" class="text-danger small mt-1 d-block"></span>
+                                </div>
 
-                </form>
-            </div>
-        </div>
+                                <!-- Seleção de Turma (Linha inteira) -->
+                                <div class="col-12">
+                                    <label asp-for="TurmaId" class="form-label fw-semibold" style="color: #0f2d59;">Turma
+                                        Vinculada</label>
+                                        <select asp-for="TurmaId" class="form-select form-select-lg shadow-sm">
+                                            <option value="">Selecione uma turma...</option>
+                                            @if (Model.TurmasDisponiveis != null)
+                                            {
+                                                foreach (var turma in Model.TurmasDisponiveis)
+                                                {
+                                                    <option value="@turma.Id">@turma.Nome</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="TurmaId" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+
+                                </div>
+
+                                <!-- Divisória -->
+                                <hr class="my-4 text-muted" style="opacity: 0.15;">
+
+                                <!-- Botões de Ação -->
+                                <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+
+                                    <!-- Botão Voltar -->
+                                    <a asp-controller="Prova" asp-action="IndexProvas"
+                                       class="btn btn-lg bg-white shadow-sm rounded-pill px-4 text-nowrap order-2 order-sm-1"
+                                       style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                                        <i class="bi bi-arrow-left me-2"></i>Voltar
+                                    </a>
+
+                                    <!-- Botão Salvar (Padronizado) -->
+                                    <button type="submit"
+                                            class="btn btn-lg text-white shadow-sm rounded-pill px-4 text-nowrap order-1 order-sm-2"
+                                            style="background-color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                                        <i class="bi bi-save fs-5 me-2"></i>Salvar Alterações
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
