@@ -1,20 +1,41 @@
 @{
     Layout = "_Layout";
-    ViewBag.Titulo = "Página Inicial";
+    ViewBag.Titulo = "Gabarito";
 }
 
 <div class="row gap-3 gap-lg-0 mt-2">
     <div class="col-12 col-lg-8">
-        <!-- Título -->
-        <h2 class="display-5 mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">
-            Gabarito - Correção Inteligente<span class="fs-4 text-muted fw-normal align-middle ms-1"></span>
-        </h2>
+        <!-- Card Banner: Sombra suave, bordas arredondadas e detalhe lateral na cor da sua marca -->
+        <div class="p-4 p-md-5 bg-white shadow-sm rounded-4 border-start border-5"
+             style="border-color: #0f2d59 !important;">
+            <div class="row align-items-center">
 
-        <!-- Linha divisória -->
-        <div style="width: 600px; height: 4px; background-color: #0f2d59; border-radius: 3px;" class="mb-4"></div>
+                <!-- Área de Texto -->
+                <div class="col-12 col-lg-8">
+                    <h2 class="fw-bold mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">
+                        Correção Inteligente
+                        <!-- Uma tag (badge) opcional que dá um ar moderno -->
+                        <span class="badge fs-6 align-middle ms-2 rounded-pill fw-normal"
+                              style="background-color: #e3ebe3; color: #0f2d59;">
+                            <i class="bi bi-stars me-1"></i>Módulo Principal
+                        </span>
+                    </h2>
 
-        <p class="fs-5 text-black lh-base" style="max-width: 600px;">
-            Gerencie turmas, alunos e provas. Corrija seus simulados de forma rápida, simples e simplificada.
-        </p>
+                    <p class="fs-5 text-muted lh-base mb-4 mb-lg-0" style="max-width: 600px;">
+                        Gerencie turmas, alunos e provas. Corrija seus simulados de forma rápida, simples e
+                        simplificada.
+                    </p>
+                </div>
+
+                <!-- Área de Ações Rápidas (Alinhada à direita no PC, e embaixo no celular) -->
+                <div class="col-12 col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <a asp-controller="Correcao" asp-action="SelecionarProva"
+                       class="btn btn-lg rounded-pill px-4 shadow-sm text-white" style="background-color: #0f2d59;">
+                        <i class="bi bi-plus-lg me-2"></i>Nova Correção
+                    </a>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>

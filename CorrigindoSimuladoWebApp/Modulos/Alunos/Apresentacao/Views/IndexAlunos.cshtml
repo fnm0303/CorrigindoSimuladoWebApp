@@ -1,47 +1,66 @@
 @{
     Layout = "_Layout";
-    ViewBag.Titulo = "Gestão de Alunos";
+    ViewBag.Titulo = "Alunos";
 }
 
 <div class="row gap-3 gap-lg-0 mt-5">
-    <div class="col-12">
+    <div class="col-12 mb-4">
 
-        <!-- Título do Módulo -->
-        <h2 class="display-5 mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">
-            Módulo de Alunos
-        </h2>
+        <!-- Card Banner: Sombra suave, bordas arredondadas e detalhe lateral -->
+        <div class="p-4 p-md-5 bg-white shadow-sm rounded-4 border-start border-5"
+             style="border-color: #0f2d59 !important;">
+            <div class="row align-items-center">
 
-        <!-- Linha divisória (ajustei a largura para ficar proporcional ao título) -->
-        <div style="width: 200px; height: 4px; background-color: #0f2d59; border-radius: 2px;" class="mb-4"></div>
+                <!-- Área de Texto -->
+                <!-- Ajustado para col-xl-5 para dar mais espaço aos 3 botões na direita -->
+                <div class="col-12 col-xl-5 mb-4 mb-xl-0">
+                    <h2 class="fw-bold mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">
+                        Módulo de Alunos
+                        <!-- Badge (Etiqueta) temática -->
+                        <span class="badge fs-6 align-middle ms-2 rounded-pill fw-normal"
+                              style="background-color: #e3ebe3; color: #0f2d59;">
+                            <i class="bi bi-mortarboard me-1"></i>Acadêmico
+                        </span>
+                    </h2>
 
-        <!-- Descrição -->
-        <p class="fs-5 text-black lh-base mb-4" style="max-width: 600px;">
-            Gerencie os alunos da instituição. Cadastre novos alunos para o ano letivo, busque um aluno específico
-            ou visualize a lista completa.
-        </p>
+                    <!-- Descrição com cor suavizada (.text-muted) -->
+                    <p class="fs-5 text-muted lh-base mb-0">
+                        Gerencie os alunos da instituição. Cadastre novos alunos para o ano letivo, busque um aluno
+                        específico ou visualize a lista completa.
+                    </p>
+                </div>
 
-        <!-- Botões de Ação -->
-        <div class="d-flex flex-column flex-md-row gap-3 mb-4">
-            <!-- Botão Cadastrar (Ação principal, cor preenchida) -->
-            <a asp-controller="Aluno" asp-action="Cadastrar"
-               class="btn btn-lg text-white shadow-sm d-flex align-items-center text-nowrap"
-               style="background-color: #0f2d59; border: none; padding: 12px 25px; transition: 0.2s;">
-                <i class="bi bi-plus-circle fs-5 me-2"></i> Cadastrar Aluno
-            </a>
+                <!-- Área de Ações Rápidas (Botões) -->
+                <!-- Ajustado para col-xl-7 para acomodar todos os botões confortavelmente -->
+                <div class="col-12 col-xl-7">
+                    <!-- Flexbox com flex-wrap: se não couber tudo em uma linha, ele quebra suavemente -->
+                    <div class="d-flex flex-column flex-md-row flex-wrap gap-3 justify-content-xl-end">
 
-            <!-- Botão Buscar -->
-            <a asp-controller="Aluno" asp-action="Buscar"
-               class="btn btn-lg bg-white shadow-sm d-flex align-items-center text-nowrap"
-               style="color: #0f2d59; border: 2px solid #0f2d59; padding: 10px 25px; transition: 0.2s;">
-                <i class="bi bi-search fs-5 me-2"></i> Buscar Alunos
-            </a>
+                        <!-- Botão Listar (Ação Secundária) -->
+                        <a asp-controller="Aluno" asp-action="Listar"
+                           class="btn btn-lg bg-white shadow-sm d-flex align-items-center justify-content-center rounded-pill px-4 text-nowrap"
+                           style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                            <i class="bi bi-list-ul fs-5 me-2"></i> Listar Alunos
+                        </a>
 
-            <!-- Botão Listar (Ação secundária, contorno) -->
-            <a asp-controller="Aluno" asp-action="Listar"
-               class="btn btn-lg bg-white shadow-sm d-flex align-items-center text-nowrap"
-               style="color: #0f2d59; border: 2px solid #0f2d59; padding: 10px 25px; transition: 0.2s;">
-                <i class="bi bi-list-ul fs-5 me-2"></i> Listar Alunos
-            </a>
+                        <!-- Botão Buscar (Ação Secundária) -->
+                        <a asp-controller="Aluno" asp-action="Buscar"
+                           class="btn btn-lg bg-white shadow-sm d-flex align-items-center justify-content-center rounded-pill px-4 text-nowrap"
+                           style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                            <i class="bi bi-search fs-5 me-2"></i> Buscar Aluno
+                        </a>
+
+                        <!-- Botão Cadastrar (Ação Principal em Destaque) -->
+                        <a asp-controller="Aluno" asp-action="Cadastrar"
+                           class="btn btn-lg text-white shadow-sm d-flex align-items-center justify-content-center rounded-pill px-4 text-nowrap"
+                           style="background-color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                            <i class="bi bi-plus-circle fs-5 me-2"></i> Cadastrar Aluno
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>

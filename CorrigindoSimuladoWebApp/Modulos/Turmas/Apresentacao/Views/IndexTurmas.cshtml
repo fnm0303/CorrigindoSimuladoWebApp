@@ -1,40 +1,57 @@
 @{
     Layout = "_Layout";
-    ViewBag.Titulo = "Gestão de Turmas";
+    ViewBag.Titulo = "Turmas";
 }
 
 <div class="row gap-3 gap-lg-0 mt-5">
     <div class="col-12">
 
-        <!-- Título do Módulo -->
-        <h2 class="display-5 mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">
-            Módulo de Turmas
-        </h2>
+        <!-- Card Banner: Sombra suave, bordas arredondadas e detalhe lateral -->
+        <div class="p-4 p-md-5 bg-white shadow-sm rounded-4 border-start border-5"
+             style="border-color: #0f2d59 !important;">
+            <div class="row align-items-center">
 
-        <!-- Linha divisória (ajustei a largura para ficar proporcional ao título) -->
-        <div style="width: 200px; height: 4px; background-color: #0f2d59; border-radius: 2px;" class="mb-4"></div>
+                <!-- Área de Texto -->
+                <div class="col-12 col-xl-7 mb-4 mb-xl-0">
+                    <h2 class="fw-bold mb-3" style="color: #0f2d59; letter-spacing: -0.5px;">
+                        Módulo de Turmas
+                        <!-- Badge (Etiqueta) moderna -->
+                        <span class="badge fs-6 align-middle ms-2 rounded-pill fw-normal"
+                              style="background-color: #e3ebe3; color: #0f2d59;">
+                            <i class="bi bi-people me-1"></i>Gestão
+                        </span>
+                    </h2>
 
-        <!-- Descrição -->
-        <p class="fs-5 text-black lh-base mb-4" style="max-width: 600px;">
-            Gerencie as turmas da instituição. Cadastre novas turmas para o ano letivo ou visualize a lista completa
-            para edição.
-        </p>
+                    <!-- Descrição com cor suavizada (.text-muted) -->
+                    <p class="fs-5 text-muted lh-base mb-0" style="max-width: 600px;">
+                        Gerencie as turmas da instituição. Cadastre novas turmas para o ano letivo ou visualize a lista
+                        completa para edição.
+                    </p>
+                </div>
 
-        <!-- Botões de Ação -->
-        <div class="d-flex flex-column flex-md-row gap-3 mb-4">
-            <!-- Botão Cadastrar (Ação principal, cor preenchida) -->
-            <a asp-controller="Turma" asp-action="Cadastrar"
-               class="btn btn-lg text-white shadow-sm d-flex align-items-center"
-               style="background-color: #0f2d59; border: none; padding: 12px 25px; transition: 0.2s;">
-                <i class="bi bi-plus-circle fs-5 me-2"></i> Cadastrar Turma
-            </a>
+                <!-- Área de Ações Rápidas (Botões) -->
+                <div class="col-12 col-xl-5">
+                    <!-- Flexbox: Alinha à direita no PC e organiza o espaçamento -->
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-xl-end">
 
-            <!-- Botão Listar (Ação secundária, contorno) -->
-            <a asp-controller="Turma" asp-action="Listar"
-               class="btn btn-lg bg-white shadow-sm d-flex align-items-center"
-               style="color: #0f2d59; border: 2px solid #0f2d59; padding: 10px 25px; transition: 0.2s;">
-                <i class="bi bi-list-ul fs-5 me-2"></i> Listar Turmas
-            </a>
+                        <!-- Botão Listar (Ação Secundária - Fica na esquerda) -->
+                        <a asp-controller="Turma" asp-action="Listar"
+                           class="btn btn-lg bg-white shadow-sm d-flex align-items-center justify-content-center rounded-pill px-4"
+                           style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                            <i class="bi bi-list-ul fs-5 me-2"></i> Listar Turmas
+                        </a>
+
+                        <!-- Botão Cadastrar (Ação Principal - Fica na direita com destaque) -->
+                        <a asp-controller="Turma" asp-action="Cadastrar"
+                           class="btn btn-lg text-white shadow-sm d-flex align-items-center justify-content-center rounded-pill px-4"
+                           style="background-color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                            <i class="bi bi-plus-circle fs-5 me-2"></i> Cadastrar Turma
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
         </div>
 
     </div>

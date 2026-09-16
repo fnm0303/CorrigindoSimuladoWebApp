@@ -1,0 +1,11 @@
+/* Estilo para o botão de turmas no menu */
+.btn-menu-hover {
+    background-color: rgb(227, 235, 227);
+    color: #0f2d59;
+    transition: background-color 0.3s ease;
+}
+
+.btn-menu-hover:hover {
+    background-color: rgb(157, 238, 157);
+    color: #0f2d59;
+}
