@@ -48,7 +48,7 @@ public sealed class AlunoController : Controller
         CadastrarAlunoViewModel viewModel = new(
             null,
             null,
-            0,
+            Guid.Empty,
             ObterTurmasDisponiveis()
         );
 
@@ -92,7 +92,7 @@ public sealed class AlunoController : Controller
     }
 
     [HttpGet]
-    public ActionResult Editar(int id)
+    public ActionResult Editar(Guid id)
     {
         Aluno? alunoSelecionado = repositorioAluno.SelecionarPorId(id);
 
@@ -111,7 +111,7 @@ public sealed class AlunoController : Controller
     }
 
     [HttpPost]
-    public ActionResult Editar(int id, EditarAlunoViewModel viewModel)
+    public ActionResult Editar(Guid id, EditarAlunoViewModel viewModel)
     {
         if (viewModel.NumeroDeMatricula.HasValue)
         {
@@ -155,7 +155,7 @@ public sealed class AlunoController : Controller
     }
 
     [HttpGet]
-    public ActionResult Excluir(int id)
+    public ActionResult Excluir(Guid id)
     {
         Aluno? alunoSelecionado = repositorioAluno.SelecionarPorId(id);
 

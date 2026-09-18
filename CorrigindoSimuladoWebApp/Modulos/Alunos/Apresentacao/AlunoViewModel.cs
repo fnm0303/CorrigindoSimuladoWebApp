@@ -2,13 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 
 public record ListarAlunoViewModel(
-    int Id,
+    Guid Id,
     int NumeroDeMatricula,
     string Nome,
     string NomeTurma
 );
 
-public record SelecionarTurmaViewModel(int Id, string Nome);
+public record SelecionarTurmaViewModel(Guid Id, string Nome);
 public record CadastrarAlunoViewModel(
     [Required(ErrorMessage = "O campo é obrigatório.")]
     [Range(1000000, 9999999, ErrorMessage ="A matrícula deve conter exatamente 7 dígitos.")]
@@ -19,14 +19,13 @@ public record CadastrarAlunoViewModel(
         ErrorMessage = "O campo \"Nome\" deve ter entre 2 e 100 caracteres")]
     string? Nome,
 
-    [Range(1, int.MaxValue, ErrorMessage = "O campo \"Turma\" é obrigatório.")]
-    int TurmaId,
+    Guid TurmaId,
 
     List<SelecionarTurmaViewModel>? TurmasDisponiveis
 );
 
 public record EditarAlunoViewModel(
-    int Id,
+    Guid Id,
     [Required(ErrorMessage = "O campo é obrigatório.")]
     [Range(1000000, 9999999, ErrorMessage ="A matrícula deve conter exatamente 7 dígitos.")]
     int? NumeroDeMatricula,
@@ -36,13 +35,12 @@ public record EditarAlunoViewModel(
         ErrorMessage = "O campo \"Nome\" deve ter entre 2 e 100 caracteres")]
     string? Nome,
 
-    [Range(1, int.MaxValue, ErrorMessage = "O campo \"Turma\" é obrigatório.")]
-    int TurmaId,
+    Guid TurmaId,
 
     List<SelecionarTurmaViewModel>? TurmasDisponiveis
 );
 
 public record ExcluirAlunoViewModel(
-    int Id,
+    Guid Id,
     string Nome
 );

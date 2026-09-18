@@ -69,7 +69,7 @@ public sealed class TurmaController : Controller
     }
 
     [HttpGet]
-    public ActionResult Editar(int id)
+    public ActionResult Editar(Guid id)
     {
         Turma? turmaSelecionada = repositorio.SelecionarPorId(id);
 
@@ -87,7 +87,7 @@ public sealed class TurmaController : Controller
     }
 
     [HttpPost]
-    public ActionResult Editar(int id, EditarTurmaViewModel viewModel)
+    public ActionResult Editar(Guid id, EditarTurmaViewModel viewModel)
     {
         if (!ModelState.IsValid)
             return View(viewModel);
@@ -107,7 +107,7 @@ public sealed class TurmaController : Controller
     }
 
     [HttpGet]
-    public ActionResult Excluir(int id)
+    public ActionResult Excluir(Guid id)
     {
         Turma? turmaSelecionada = repositorio.SelecionarPorId(id);
 

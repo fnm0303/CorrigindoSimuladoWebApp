@@ -46,7 +46,7 @@ public sealed class ProvaController : Controller
             null,
             null,
             null,
-            0,
+            Guid.Empty,
             ObterTurmasDisponiveis()
         );
         return View(viewModel);
@@ -95,7 +95,7 @@ public sealed class ProvaController : Controller
     }
 
     [HttpGet]
-    public ActionResult Editar(int id)
+    public ActionResult Editar(Guid id)
     {
         Prova? provaSelecionada = repositorioProva.SelecionarPorId(id);
 
@@ -115,7 +115,7 @@ public sealed class ProvaController : Controller
     }
 
     [HttpPost]
-    public ActionResult Editar(int id, EditarProvaViewModel viewModel)
+    public ActionResult Editar(Guid id, EditarProvaViewModel viewModel)
     {
         Turma? turmaSelecionada = repositorioTurma.SelecionarPorId(viewModel.TurmaId);
 
@@ -161,7 +161,7 @@ public sealed class ProvaController : Controller
     }
 
     [HttpGet]
-    public ActionResult Excluir(int id)
+    public ActionResult Excluir(Guid id)
     {
         Prova? provaSelecionada = repositorioProva.SelecionarPorId(id);
 
