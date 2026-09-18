@@ -31,7 +31,7 @@ public sealed class CorrecaoController : Controller
     }
 
     [HttpGet]
-    public ActionResult Listar(int provaId)
+    public ActionResult Listar(Guid provaId)
     {
         Prova? provaSelecionada = repositorioProva.SelecionarPorId(provaId);
 
@@ -72,7 +72,7 @@ public sealed class CorrecaoController : Controller
     }
 
     [HttpGet]
-    public ActionResult Cadastrar(int provaId)
+    public ActionResult Cadastrar(Guid provaId)
     {
         // 1. Busca a Prova selecionada
         Prova? prova = repositorioProva.SelecionarPorId(provaId);
@@ -152,7 +152,7 @@ public sealed class CorrecaoController : Controller
     }
 
     [HttpGet]
-    public ActionResult Excluir(int id)
+    public ActionResult Excluir(Guid id)
     {
         Correcao? correcaoSelecionada = repositorioCorrecao.SelecionarPorId(id);
 
@@ -200,7 +200,7 @@ public sealed class CorrecaoController : Controller
     }
 
     [HttpGet]
-    public ActionResult DetalharCorrecao(int id)
+    public ActionResult DetalharCorrecao(Guid id)
     {
         // 1. Busca a correção no banco/arquivo
         Correcao? correcao = repositorioCorrecao.SelecionarPorId(id);

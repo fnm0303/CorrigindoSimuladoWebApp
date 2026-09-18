@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 public record ListarProvaViewModel(
-    int Id,
+    Guid Id,
     string Nome,
     string NomeTurma
 );
@@ -20,13 +20,13 @@ public record CadastrarProvaViewModel(
     string? GabaritoCorreto,
 
     [Required(ErrorMessage = "Selecione uma turma.")]
-    int TurmaId,
+    Guid TurmaId,
 
     List<SelecionarTurmaViewModel>? TurmasDisponiveis
 );
 
 public record EditarProvaViewModel(
-    int Id,
+    Guid Id,
 
     [Required(ErrorMessage = "O nome da prova é obrigatório.")]
     string? Nome,
@@ -40,12 +40,12 @@ public record EditarProvaViewModel(
     string? GabaritoCorreto,
 
     [Required(ErrorMessage = "Selecione uma turma.")]
-    int TurmaId,
+    Guid TurmaId,
 
     List<SelecionarTurmaViewModel>? TurmasDisponiveis
 );
 
 public record ExcluirProvaViewModel(
-    int Id,
+    Guid Id,
     string Nome
 );

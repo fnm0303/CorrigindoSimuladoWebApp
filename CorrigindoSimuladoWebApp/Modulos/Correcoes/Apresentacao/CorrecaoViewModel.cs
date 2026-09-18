@@ -3,22 +3,22 @@ using System.ComponentModel.DataAnnotations;
 namespace CorrigindoSimuladoWebApp.Modulos.Correcoes.Apresentacao;
 
 // ViewModel genérico para preencher Dropdowns (combobox)
-public record SelecionarItemViewModel(int Id, string Nome);
+public record SelecionarItemViewModel(Guid Id, string Nome);
 
 public record ListarCorrecaoViewModel(
-    int Id,
+    Guid Id,
     string NomeProva,
     string NomeAluno,
     int NumeroAcertos
 );
 
 public record CadastrarCorrecaoViewModel(
-    int ProvaId,
+    Guid ProvaId,
     string? NomeProva,
     int QuantidadeQuestoes,
 
     [Required(ErrorMessage = "Selecione um aluno.")]
-    int? AlunoId,
+    Guid? AlunoId,
 
     [Required(ErrorMessage = "O gabarito do aluno é obrigatório.")]
     [RegularExpression(@"^[a-eA-E\s]+$", ErrorMessage = "O gabarito deve conter apenas as letras A, B, C, D ou E e espaços.")]
@@ -37,7 +37,7 @@ public record DetalheQuestaoViewModel(
 
 // ViewModel que empacota tudo para mandar para a tela
 public record DetalhesCorrecaoViewModel(
-    int CorrecaoId,
+    Guid CorrecaoId,
     string NomeProva,
     string NomeAluno,
     int Acertos,
@@ -46,12 +46,12 @@ public record DetalhesCorrecaoViewModel(
 );
 
 public record ListarProvasCorrigidasViewModel(
-    int Id,
+    Guid Id,
     string Nome,
     string NomeTurma
 );
 
 public record ExcluirCorrecaoViewModel(
-    int Id,
+    Guid Id,
     string NomeAluno
 );

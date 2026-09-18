@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using CorrigindoSimuladoWebApp.Modulos.Turmas.Dominio;
 
 public record ListarTurmaViewModel(
-    int Id,
+    Guid Id,
     string Nome,
     TipoCurso Curso,
     int AnoLetivo
@@ -23,7 +23,7 @@ public record CadastrarTurmaViewModel(
 );
 
 public record EditarTurmaViewModel(
-    int Id,
+    Guid Id,
     [Required(ErrorMessage = "O campo \"Nome\" é obrigatório.")]
     [StringLength(100, MinimumLength = 3,
         ErrorMessage = "O campo \"Nome\" deve ter entre 2 e 100 caracteres")]
@@ -38,6 +38,6 @@ public record EditarTurmaViewModel(
 );
 
 public record ExcluirTurmaViewModel(
-    int Id,
+    Guid Id,
     string Nome
 );
