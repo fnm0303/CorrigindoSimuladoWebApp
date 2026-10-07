@@ -102,53 +102,145 @@ public sealed class CorrecaoController : Controller
     [HttpPost]
     public ActionResult Cadastrar(CadastrarCorrecaoViewModel viewModel)
     {
-        Prova? provaSelecionada = repositorioProva.SelecionarPorId(viewModel.ProvaId);
-        Aluno? alunoSelecionado = viewModel.AlunoId.HasValue ? repositorioAluno.SelecionarPorId(viewModel.AlunoId.Value) : null;
+        Prova? provaSelecionada =
+            repositorioProva.SelecionarPorId(viewModel.ProvaId);
+
+        Aluno? alunoSelecionado =
+            viewModel.AlunoId.HasValue
+                ? repositorioAluno.SelecionarPorId(viewModel.AlunoId.Value)
+                : null;
 
         if (provaSelecionada == null || alunoSelecionado == null)
             return NotFound();
 
-        // VALIDAÇÃO 1: Impede que o aluno tenha duas notas na mesma prova
-        bool alunoJaFezAProva = repositorioCorrecao.SelecionarTodos()
-            .Any(c => c.Prova.Id == provaSelecionada.Id && c.Aluno.Id == alunoSelecionado.Id);
+
+        // ============================================================
+        // VALIDAÇÃO 1
+        // Impede duas correções para o mesmo aluno na mesma prova
+        // ============================================================
+
+        bool alunoJaFezAProva =
+            repositorioCorrecao
+                .SelecionarTodos()
+                .Any(c =>
+                    c.Prova.Id == provaSelecionada.Id &&
+                    c.Aluno.Id == alunoSelecionado.Id
+                );
 
         if (alunoJaFezAProva)
-            ModelState.AddModelError(nameof(viewModel.AlunoId), "Este aluno já possui uma correção registrada para esta prova.");
-
-        // VALIDAÇÃO 2: O gabarito tem que ter o mesmo tamanho da quantidade de questões da prova
-        if (!string.IsNullOrEmpty(viewModel.GabaritoAluno))
         {
-            string gabaritoLimpo = viewModel.GabaritoAluno.Replace(" ", "").Trim();
+            ModelState.AddModelError(
+                nameof(viewModel.AlunoId),
+                "Este aluno já possui uma correção registrada para esta prova."
+            );
+        }
 
-            if (gabaritoLimpo.Length != provaSelecionada.QuantidadeQuestoes)
+
+        // ============================================================
+        // VALIDAÇÃO 2
+        // Quantidade de respostas
+        // ============================================================
+
+        if (!string.IsNullOrWhiteSpace(viewModel.GabaritoAluno))
+        {
+            string gabaritoLimpo =
+                viewModel.GabaritoAluno
+                    .Replace(" ", "")
+                    .Trim();
+
+            if (gabaritoLimpo.Length !=
+                provaSelecionada.QuantidadeQuestoes)
             {
                 ModelState.AddModelError(
                     nameof(viewModel.GabaritoAluno),
-                    $"O gabarito deve conter exatamente {provaSelecionada.QuantidadeQuestoes} letras. Você digitou {gabaritoLimpo.Length}."
+                    $"O gabarito deve conter exatamente " +
+                    $"{provaSelecionada.QuantidadeQuestoes} letras. " +
+                    $"Você digitou {gabaritoLimpo.Length}."
                 );
             }
         }
-
-        // Se houver erros (validação do C# ou as validações acima)
-        if (!ModelState.IsValid)
+        else
         {
-            // Recarrega os alunos da turma para o dropdown não sumir na tela de erro
-            viewModel = viewModel with
-            {
-                AlunosDisponiveis = repositorioAluno.SelecionarTodos()
-                    .Where(a => a.Turma.Id == provaSelecionada.Turma.Id)
-                    .Select(a => new SelecionarItemViewModel(a.Id, a.Nome)).ToList()
-            };
-
-            return View("/Modulos/Correcoes/Apresentacao/Views/Cadastrar.cshtml", new { provaId = viewModel.ProvaId });
+            ModelState.AddModelError(
+                nameof(viewModel.GabaritoAluno),
+                "O gabarito do aluno não foi informado."
+            );
         }
 
-        // Salva a correção (A sua entidade Correcao já calcula os acertos automaticamente no construtor)
-        Correcao novaCorrecao = new Correcao(provaSelecionada, alunoSelecionado, viewModel.GabaritoAluno!);
+
+        // ============================================================
+        // VALIDAÇÃO 3
+        // OMR encontrou alguma questão ambígua?
+        // ============================================================
+
+        if (!string.IsNullOrWhiteSpace(viewModel.GabaritoAluno) &&
+            viewModel.GabaritoAluno.Contains('?'))
+        {
+            ModelState.AddModelError(
+                nameof(viewModel.GabaritoAluno),
+                "O leitor não conseguiu identificar com segurança " +
+                "uma ou mais respostas. Revise as questões marcadas com '?'."
+            );
+        }
+
+
+        // ============================================================
+        // SE HOUVER ERRO
+        // ============================================================
+
+        if (!ModelState.IsValid)
+        {
+            viewModel = viewModel with
+            {
+                AlunosDisponiveis =
+                    repositorioAluno
+                        .SelecionarTodos()
+                        .Where(a =>
+                            a.Turma.Id ==
+                            provaSelecionada.Turma.Id)
+                        .Select(a =>
+                            new SelecionarItemViewModel(
+                                a.Id,
+                                a.Nome))
+                        .ToList()
+            };
+
+            // IMPORTANTE:
+            // retorna o ViewModel completo.
+            // NÃO use "new { provaId = ... }".
+
+            return View(
+                "/Modulos/Correcoes/Apresentacao/Views/Cadastrar.cshtml",
+                viewModel
+            );
+        }
+
+
+        // ============================================================
+        // SALVAR
+        // ============================================================
+
+        Correcao novaCorrecao =
+            new Correcao(
+                provaSelecionada,
+                alunoSelecionado,
+                viewModel.GabaritoAluno!
+            );
+
         repositorioCorrecao.Cadastrar(novaCorrecao);
 
-        // Redireciona para a listagem (Tabela)
-        return RedirectToAction(nameof(Listar));
+
+        // ============================================================
+        // REDIRECIONAR PARA A LISTAGEM DA PROVA
+        // ============================================================
+
+        return RedirectToAction(
+            nameof(Listar),
+            new
+            {
+                provaId = provaSelecionada.Id
+            }
+        );
     }
 
     [HttpGet]
@@ -240,6 +332,62 @@ public sealed class CorrecaoController : Controller
         );
 
         return View("/Modulos/Correcoes/Apresentacao/Views/DetalharCorrecao.cshtml", viewModel);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> ProcessarGabaritoOmr(Guid provaId, IFormFile imagemGabarito,
+        [FromServices] ILeitorDeGabarito leitorOmr)
+    {
+        // 1. Busca a prova para não quebrar a View (NomeProva e QuantidadeQuestoes)
+        Prova? provaSelecionada = repositorioProva.SelecionarPorId(provaId);
+        if (provaSelecionada == null)
+            return NotFound();
+
+        if (imagemGabarito == null || imagemGabarito.Length == 0)
+        {
+            TempData["Erro"] = "Por favor, envie a foto do gabarito.";
+            return RedirectToAction("Cadastrar", new { provaId = provaId });
+        }
+
+        // 2. Manda a imagem para a implementação OMR ler as bolinhas
+        using var stream = imagemGabarito.OpenReadStream();
+        ResultadoLeituraGabarito resultado = await leitorOmr.LerImagemAsync(stream);
+
+        if (!resultado.Sucesso)
+        {
+            TempData["Erro"] = $"Falha ao ler o gabarito: {resultado.MensagemErro}";
+            return RedirectToAction("Cadastrar", new { provaId = provaId });
+        }
+
+        // 3. Busca o Aluno pela matrícula que o OMR leu 
+        Aluno? alunoEncontrado = null;
+
+        // Tenta converter a string (ex: "1234567") para int de forma segura
+        if (int.TryParse(resultado.NumeroMatricula, out int matriculaLida))
+        {
+            // Agora compara int com int
+            alunoEncontrado = repositorioAluno.SelecionarTodos()
+                .FirstOrDefault(a => a.NumeroDeMatricula == matriculaLida);
+        }
+
+        // 4. Recarrega os alunos da turma para preencher o <select>
+        List<SelecionarItemViewModel> alunosDaTurma = repositorioAluno.SelecionarTodos()
+            .Where(a => a.Turma.Id == provaSelecionada.Turma.Id)
+            .Select(a => new SelecionarItemViewModel(a.Id, a.Nome))
+            .ToList();
+
+        // 5. Monta a ViewModel com os dados REAIS lidos do gabarito
+        var viewModel = new CadastrarCorrecaoViewModel(
+            provaSelecionada.Id,
+            provaSelecionada.Nome,
+            provaSelecionada.QuantidadeQuestoes,
+            alunoEncontrado?.Id, // ID do aluno encontrado preencherá o <select> automaticamente!
+            resultado.LetrasGabarito, // As letras lidas preencherão o <input> automaticamente!
+            alunosDaTurma
+        );
+
+        // Devolve a mesma View de cadastro, mas agora com os campos preenchidos
+        return View("/Modulos/Correcoes/Apresentacao/Views/Cadastrar.cshtml", viewModel);
     }
 
     private List<SelecionarItemViewModel>? ObterAlunosDisponiveis()

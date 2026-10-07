@@ -8,7 +8,7 @@
 <div class="row justify-content-center my-3 my-md-4">
     <div class="col-12 col-md-10 col-lg-8 col-xl-7 col-xxl-6">
 
-        <form asp-controller="Correcao" asp-action="Cadastrar" method="post">
+        <form asp-controller="Correcao" asp-action="Cadastrar" method="post" enctype="multipart/form-data">
 
             <!-- Campos Ocultos (Hidden) -->
             <input type="hidden" asp-for="ProvaId" />
@@ -89,8 +89,23 @@
                             <!-- Divisória -->
                             <hr class="my-4 text-muted" style="opacity: 0.15;">
 
+                            <!-- Novo campo para Upload / Câmera -->
+                            <div class="col-12 mb-4 bg-light p-3 rounded border">
+                                <label class="form-label fw-semibold text-primary">
+                                    <i class="bi bi-camera me-2"></i>Escanear Gabarito (Opcional)
+                                </label>
+        
+                                <!-- O 'accept="image/*"' e 'capture="environment"' abre a câmera no celular! -->
+                                <input type="file" name="imagemGabarito" class="form-control" accept="image/*"
+                                       capture="environment" />
+        
+                                <button type="submit" asp-action="ProcessarGabaritoOmr" class="btn btn-outline-primary mt-2"">
+                                    Processar Imagem
+                                </button>
+                            </div>
+
                             <!-- Botões de Ação -->
-                            <div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+                            <div class=" d-grid gap-2 d-sm-flex justify-content-sm-end">
 
                                 <!-- Botão Voltar (Volta para a seleção de prova) -->
                                 <a asp-controller="Correcao" asp-action="SelecionarProva"

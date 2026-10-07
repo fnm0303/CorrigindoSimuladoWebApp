@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Modelo de Gabarito OMR</title>
+    <style>
+        body {
+            background-color: #525659;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        /* Tamanho padrão de uma folha A4 (em pixels a 96 DPI) */
+        .folha-a4 {
+            background-color: white;
+            width: 794px; 
+            height: 1123px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        /* Oculta o fundo cinza na hora de imprimir */
+        @media print {
+            body { background-color: white; padding: 0; }
+            .folha-a4 { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="folha-a4">
+        <!-- SVG Canvas: Trabalha exatamente com as coordenadas X e Y -->
+        <svg width="794" height="1123" xmlns="http://www.w3.org/2000/svg">
+            
+            <!-- ========================================== -->
+            <!-- 1. MARCADORES DE ALINHAMENTO (FIDUCIAIS)   -->
+            <!-- Essenciais para o OpenCV "desamassar" a foto -->
+            <!-- ========================================== -->
+            <rect x="40" y="40" width="40" height="40" fill="black" /> <!-- Topo Esquerda -->
+            <rect x="714" y="40" width="40" height="40" fill="black" /> <!-- Topo Direita -->
+            <rect x="40" y="1043" width="40" height="40" fill="black" /> <!-- Base Esquerda -->
+            <rect x="714" y="1043" width="40" height="40" fill="black" /> <!-- Base Direita -->
+
+            <!-- Cabeçalho -->
+            <text x="100" y="70" font-size="24" font-weight="bold">FOLHA DE RESPOSTAS - SIMULADO</text>
+            <text x="100" y="100" font-size="14">Instruções: Pinte a bolinha inteira com caneta preta. Não faça "X".</text>
+            <line x1="100" y1="120" x2="694" y2="120" stroke="black" stroke-width="2" />
+
+            <!-- ========================================== -->
+            <!-- 2. COORDENADAS EXATAS DO SEU CÓDIGO C#     -->
+            <!-- No código: new Rect(100, 200, 30, 30)      -->
+            <!-- Matemática: O centro do círculo (cx, cy)   -->
+            <!-- é X + 15 e Y + 15. Raio (r) = 15.          -->
+            <!-- ========================================== -->
+
+            <!-- QUESTÃO 1 (Y = 200) -->
+            <text x="60" y="220" font-size="16" font-weight="bold">1</text>
+            <!-- A (X=100) -->
+            <circle cx="115" cy="215" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="115" y="220" font-size="12" text-anchor="middle">A</text>
+            <!-- B (X=150) -->
+            <circle cx="165" cy="215" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="165" y="220" font-size="12" text-anchor="middle">B</text>
+            <!-- C (X=200) -->
+            <circle cx="215" cy="215" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="215" y="220" font-size="12" text-anchor="middle">C</text>
+            <!-- D (X=250) -->
+            <circle cx="265" cy="215" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="265" y="220" font-size="12" text-anchor="middle">D</text>
+            <!-- E (X=300) -->
+            <circle cx="315" cy="215" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="315" y="220" font-size="12" text-anchor="middle">E</text>
+
+
+            <!-- QUESTÃO 2 (Descemos 50 pixels no Y -> Y = 250) -->
+            <text x="60" y="270" font-size="16" font-weight="bold">2</text>
+            <!-- A (X=100) -->
+            <circle cx="115" cy="265" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="115" y="270" font-size="12" text-anchor="middle">A</text>
+            <!-- B (X=150) -->
+            <circle cx="165" cy="265" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="165" y="270" font-size="12" text-anchor="middle">B</text>
+            <!-- C (X=200) -->
+            <circle cx="215" cy="265" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="215" y="270" font-size="12" text-anchor="middle">C</text>
+            <!-- D (X=250) -->
+            <circle cx="265" cy="265" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="265" y="270" font-size="12" text-anchor="middle">D</text>
+            <!-- E (X=300) -->
+            <circle cx="315" cy="265" r="15" stroke="black" stroke-width="2" fill="white" />
+            <text x="315" y="270" font-size="12" text-anchor="middle">E</text>
+
+
+            <!-- QUESTÃO 3 (Descemos +50 pixels no Y -> Y = 300) -->
+            <text x="60" y="320" font-size="16" font-weight="bold">3</text>
+            <circle cx="115" cy="315" r="15" stroke="black" stroke-width="2" fill="white" /><text x="115" y="320" font-size="12" text-anchor="middle">A</text>
+            <circle cx="165" cy="315" r="15" stroke="black" stroke-width="2" fill="white" /><text x="165" y="320" font-size="12" text-anchor="middle">B</text>
+            <circle cx="215" cy="315" r="15" stroke="black" stroke-width="2" fill="white" /><text x="215" y="320" font-size="12" text-anchor="middle">C</text>
+            <circle cx="265" cy="315" r="15" stroke="black" stroke-width="2" fill="white" /><text x="265" y="320" font-size="12" text-anchor="middle">D</text>
+            <circle cx="315" cy="315" r="15" stroke="black" stroke-width="2" fill="white" /><text x="315" y="320" font-size="12" text-anchor="middle">E</text>
+
+            
+            <!-- QUESTÃO 4 (Y = 350) -->
+            <text x="60" y="370" font-size="16" font-weight="bold">4</text>
+            <circle cx="115" cy="365" r="15" stroke="black" stroke-width="2" fill="white" /><text x="115" y="370" font-size="12" text-anchor="middle">A</text>
+            <circle cx="165" cy="365" r="15" stroke="black" stroke-width="2" fill="white" /><text x="165" y="370" font-size="12" text-anchor="middle">B</text>
+            <circle cx="215" cy="365" r="15" stroke="black" stroke-width="2" fill="white" /><text x="215" y="370" font-size="12" text-anchor="middle">C</text>
+            <circle cx="265" cy="365" r="15" stroke="black" stroke-width="2" fill="white" /><text x="265" y="370" font-size="12" text-anchor="middle">D</text>
+            <circle cx="315" cy="365" r="15" stroke="black" stroke-width="2" fill="white" /><text x="315" y="370" font-size="12" text-anchor="middle">E</text>
+
+
+            <!-- QUESTÃO 5 (Y = 400) -->
+            <text x="60" y="420" font-size="16" font-weight="bold">5</text>
+            <circle cx="115" cy="415" r="15" stroke="black" stroke-width="2" fill="white" /><text x="115" y="420" font-size="12" text-anchor="middle">A</text>
+            <circle cx="165" cy="415" r="15" stroke="black" stroke-width="2" fill="white" /><text x="165" y="420" font-size="12" text-anchor="middle">B</text>
+            <circle cx="215" cy="415" r="15" stroke="black" stroke-width="2" fill="white" /><text x="215" y="420" font-size="12" text-anchor="middle">C</text>
+            <circle cx="265" cy="415" r="15" stroke="black" stroke-width="2" fill="white" /><text x="265" y="420" font-size="12" text-anchor="middle">D</text>
+            <circle cx="315" cy="415" r="15" stroke="black" stroke-width="2" fill="white" /><text x="315" y="420" font-size="12" text-anchor="middle">E</text>
+
+        </svg>
+    </div>
+
+</body>
+</html>
