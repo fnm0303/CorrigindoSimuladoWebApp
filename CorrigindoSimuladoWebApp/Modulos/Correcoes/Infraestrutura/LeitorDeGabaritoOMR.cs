@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using CorrigindoSimuladoWebApp.Modulos.Correcoes.Dominio;
 using OpenCvSharp;
 
@@ -6,275 +10,564 @@ namespace CorrigindoSimuladoWebApp.Modulos.Correcoes.Infraestrutura;
 public class LeitorDeGabaritoOmr : ILeitorDeGabarito
 {
     // ============================================================
-    // CONFIGURAÇÕES GERAIS
+    // TAMANHO PADRÃO DA FOLHA
     // ============================================================
 
     private const int LarguraPadrao = 1000;
     private const int AlturaPadrao = 1414;
 
-    // Área analisada no interior de cada bolinha.
-    private const int TamanhoRoi = 19;
-    private const int RaioMascara = 6;
+    // ============================================================
+    // MARCADORES DE REGISTRO
+    // Devem ser impressos no formulário:
+    // 10mm x 10mm
+    // centro aproximadamente 10mm de cada borda.
+    // ============================================================
 
-    // Busca pequenos deslocamentos causados por foto/scanner.
-    private const int BuscaXY = 2;
-    private const int BuscaYQuestao = 0;
-
-    // Limites de segurança para considerar uma marca válida.
-    private const double MinScoreQuestao = 0.45;
-    private const double MinContrasteQuestao = 0.12;
-    private const double MinMargemQuestao = 0.12;
-
-    private const double MinScoreMatricula = 0.45;
-    private const double MinMargemMatricula = 0.10;
-
-    private const double InclinacaoXPorLinha = -0.50;
+    private const double MarcadorDestinoEsquerdaX = 67;
+    private const double MarcadorDestinoDireitaX = 946;
+    private const double MarcadorDestinoSuperiorY = 67;
+    private const double MarcadorDestinoInferiorY = 1347;
 
     // ============================================================
-    // COORDENADAS DA FOLHA PADRÃO 1000 x 1414
+    // CONFIGURAÇÃO DO FORMULÁRIO
     //
-    // IMPORTANTE:
-    // Trabalhamos com o CENTRO das bolinhas, e não com o canto
-    // superior esquerdo do Rect.
+    // Estes valores foram calibrados para o modelo do gabarito
+    // que você acabou de enviar.
+    //
+    // Como trabalhamos com imagem normalizada, não dependem da
+    // resolução original da foto.
     // ============================================================
 
-    // Questões 01-25
-    private static readonly double[] XQuestoesEsquerda =
+    // ------------------------------------------------------------
+    // RESPOSTAS - COLUNA ESQUERDA
+    // Questões 01 a 25
+    // ------------------------------------------------------------
+
+    private static readonly double[] RespostasEsquerdaX =
     {
-        274, 303, 332, 359, 387
+        0.253,
+        0.282,
+        0.312,
+        0.341,
+        0.371
     };
 
-    // Questões 26-50
-    private static readonly double[] XQuestoesDireita =
+    // ------------------------------------------------------------
+    // RESPOSTAS - COLUNA DIREITA
+    // Questões 26 a 50
+    // ------------------------------------------------------------
+
+    private static readonly double[] RespostasDireitaX =
     {
-        622, 648, 677, 705, 733
+        0.620,
+        0.650,
+        0.680,
+        0.710,
+        0.740
     };
 
-    // Centro vertical da primeira questão.
-    private const double YPrimeiraQuestaoEsquerda = 580.0;
-    private const double YPrimeiraQuestaoDireita = 584.5;
+    // ------------------------------------------------------------
+    // Primeira linha de respostas
+    // ------------------------------------------------------------
 
-    // Espaçamento médio real da folha.
-    // Não usamos mais 30.
-    private const double StepYQuestoes = 28.1;
+    private const double RespostaPrimeiraY = 0.4111;
 
-    // Matrícula - 7 colunas
-    private static readonly double[] XMatricula =
+    // ------------------------------------------------------------
+    // Espaçamento vertical aproximado do formulário
+    //
+    // Como a folha é corrigida geometricamente antes da leitura,
+    // podemos trabalhar com uma grade regular.
+    // ------------------------------------------------------------
+
+    private const double RespostaStepY = 0.0208;
+
+    // ============================================================
+    // MATRÍCULA
+    // ============================================================
+
+    private static readonly double[] MatriculaX =
     {
-        714, 745, 776, 806, 837, 868, 899
+        0.646,
+        0.679,
+        0.711,
+        0.744,
+        0.778,
+        0.811,
+        0.844
     };
 
-    // Linha 0 da matrícula.
-    private const double YPrimeiraMatricula = 171.0;
+    private const double MatriculaPrimeiraY = 0.1430;
 
-    // Espaçamento vertical aproximado.
-    private const double StepYMatricula = 26.6;
+    private const double MatriculaStepY = 0.0198;
 
+    // ============================================================
+    // SCORE OMR
+    // ============================================================
+
+    // Abaixo disso consideramos a alternativa vazia.
+    private const double LimiteBranco = 0.18;
+
+    // Acima disso existe uma marca potencial.
+    private const double LimiteMarcacao = 0.30;
+
+    // Diferença mínima entre a primeira e segunda alternativa.
+    private const double MargemMinima = 0.07;
+
+    // ============================================================
+    // ROI DAS BOLINHAS
+    // ============================================================
+
+    private const int TamanhoRoi = 31;
+
+    // Centro analisado
+    private const int RaioCentro = 5;
+
+    // Anel utilizado para medir o fundo local
+    private const int RaioFundoInterno = 10;
+    private const int RaioFundoExterno = 13;
 
     // ============================================================
     // MÉTODO PÚBLICO
     // ============================================================
 
-    public async Task<ResultadoLeituraGabarito> LerImagemAsync(Stream streamImagem)
+    public async Task<ResultadoLeituraGabarito> LerImagemAsync(
+        Stream streamImagem)
     {
         if (streamImagem == null)
             throw new ArgumentNullException(nameof(streamImagem));
 
-        // Mantemos a assinatura assíncrona da arquitetura atual.
-        return await Task.Run(() => ProcessarImagemOpenCv(streamImagem));
+        return await Task.Run(
+            () => ProcessarImagemOpenCv(streamImagem));
     }
-
 
     // ============================================================
     // PROCESSAMENTO PRINCIPAL
     // ============================================================
 
-    private ResultadoLeituraGabarito ProcessarImagemOpenCv(Stream stream)
+    private ResultadoLeituraGabarito ProcessarImagemOpenCv(
+        Stream stream)
     {
         var resultado = new ResultadoLeituraGabarito();
 
         try
         {
-            // ----------------------------------------------------
-            // 1. Ler Stream
-            // ----------------------------------------------------
-
             using var memoryStream = new MemoryStream();
-
             stream.CopyTo(memoryStream);
 
             byte[] imageBytes = memoryStream.ToArray();
 
-            using Mat imagemOriginal =
-                Cv2.ImDecode(imageBytes, ImreadModes.Color);
+            using Mat imagemOriginal = Cv2.ImDecode(
+                imageBytes,
+                ImreadModes.Color);
 
             if (imagemOriginal.Empty())
-                throw new Exception("Não foi possível decodificar a imagem recebida.");
+                throw new InvalidOperationException(
+                    "Não foi possível abrir a imagem enviada.");
 
+            // 1. Corrigir orientação.
+            using Mat imagemOrientada =
+                CorrigirOrientacao(imagemOriginal);
 
-            // ----------------------------------------------------
-            // 2. Corrigir orientação/perspectiva e padronizar
-            // ----------------------------------------------------
-
+            // 2. Detectar marcadores e corrigir perspectiva.
             using Mat imagemNormalizada =
-                NormalizarImagem(imagemOriginal);
+                NormalizarPagina(imagemOrientada);
 
-
-            // ----------------------------------------------------
-            // 3. Converter para escala de cinza
-            // ----------------------------------------------------
-
-            using Mat imagemCinzaOriginal = new Mat();
+            // 3. Criar imagem em escala de cinza.
+            using Mat imagemCinza = new Mat();
 
             Cv2.CvtColor(
                 imagemNormalizada,
-                imagemCinzaOriginal,
-                ColorConversionCodes.BGR2GRAY
-            );
+                imagemCinza,
+                ColorConversionCodes.BGR2GRAY);
 
+            // 4. Criar debug colorido a partir da folha normalizada.
+            using Mat imagemDebug = imagemNormalizada.Clone();
 
-            // ----------------------------------------------------
-            // 4. Corrigir polaridade
-            //
-            // Esperamos folha clara com tinta escura.
-            // Caso a imagem venha como negativo, invertimos.
-            // ----------------------------------------------------
-
-            using Mat imagemCinza = CorrigirPolaridade(
-                imagemCinzaOriginal
-            );
-
-
-            // ----------------------------------------------------
-            // 5. Melhorar contraste local
-            //
-            // Ajuda em fotos onde uma parte da folha está mais
-            // escura ou mais clara.
-            // ----------------------------------------------------
-
-            using Mat imagemPreparada = MelhorarContraste(
-                imagemCinza
-            );
-
-
-            // ----------------------------------------------------
-            // 6. Matrícula
-            // ----------------------------------------------------
-
+            // 5. Ler matrícula e respostas usando a imagem cinza.
             resultado.NumeroMatricula =
-                LerMatricula(imagemPreparada);
-
-
-            // ----------------------------------------------------
-            // 7. Questões 01-50
-            // ----------------------------------------------------
+                LerMatricula(imagemCinza, imagemDebug);
 
             resultado.LetrasGabarito =
-                Ler50Questoes(imagemPreparada);
+                Ler50Questoes(imagemCinza, imagemDebug);
 
+            // 6. Salvar a imagem de depuração.
+            Cv2.ImWrite(
+                "debug_gabarito_desenhado.jpg",
+                imagemDebug);
 
             resultado.Sucesso = true;
-
-            return resultado;
         }
         catch (Exception ex)
         {
             resultado.Sucesso = false;
-
             resultado.MensagemErro =
                 $"Erro ao ler gabarito: {ex.Message}";
-
-            return resultado;
         }
+
+        return resultado;
     }
 
-
     // ============================================================
-    // NORMALIZAÇÃO DA IMAGEM
+    // ORIENTAÇÃO
     // ============================================================
 
-    private Mat NormalizarImagem(Mat imagemOriginal)
+    private Mat CorrigirOrientacao(Mat imagem)
     {
-        using Mat imagemParaProcessar = imagemOriginal.Clone();
-
-        Mat imagemOrientada = imagemParaProcessar.Clone();
-
-        // --------------------------------------------------------
-        // Tenta encontrar os quatro cantos da folha.
-        //
-        // Se conseguir, aplica transformação de perspectiva.
-        // Se não conseguir, cai para Resize padrão.
-        // --------------------------------------------------------
-
-        try
+        if (imagem.Width <= imagem.Height)
         {
-            using Mat cinza = new Mat();
+            return imagem.Clone();
+        }
 
-            Cv2.CvtColor(
-                imagemOrientada,
+        using var transposta = new Mat();
+
+        Cv2.Transpose(
+            imagem,
+            transposta);
+
+        var resultado = new Mat();
+
+        Cv2.Flip(
+            transposta,
+            resultado,
+            FlipMode.Y);
+
+        return resultado;
+    }
+
+    // ============================================================
+    // NORMALIZAR PÁGINA
+    // ============================================================
+
+    private Mat NormalizarPagina(Mat imagem)
+    {
+        // --------------------------------------------------------
+        // Primeiro tentamos os 4 marcadores.
+        // --------------------------------------------------------
+
+        using Mat cinza = new Mat();
+
+        Cv2.CvtColor(
+            imagem,
+            cinza,
+            ColorConversionCodes.BGR2GRAY);
+
+        if (!TentarEncontrarMarcadores(
                 cinza,
-                ColorConversionCodes.BGR2GRAY
-            );
+                out Point2f[] marcadores))
+        {
+            throw new InvalidOperationException(
+                "Não foi possível detectar os quatro marcadores " +
+                "de registro. Verifique se os quatro aparecem " +
+                "na imagem e se a folha inteira está enquadrada.");
+        }
 
-            if (TentarEncontrarFolha(cinza, out Point2f[] pontos))
+        return AplicarPerspectivaPorMarcadores(imagem, marcadores);
+
+    }
+
+    // ============================================================
+    // DETECTAR OS 4 MARCADORES
+    // ============================================================
+
+    private bool TentarEncontrarMarcadores(
+        Mat cinza,
+        out Point2f[] pontos)
+    {
+        pontos = Array.Empty<Point2f>();
+
+        using var suavizada = new Mat();
+
+        Cv2.GaussianBlur(
+            cinza,
+            suavizada,
+            new Size(5, 5),
+            0);
+
+        using var binarizada = new Mat();
+
+        Cv2.Threshold(
+            suavizada,
+            binarizada,
+            0,
+            255,
+            ThresholdTypes.BinaryInv |
+            ThresholdTypes.Otsu);
+
+        Cv2.FindContours(
+            binarizada,
+            out Point[][] contornos,
+            out _,
+            RetrievalModes.External,
+            ContourApproximationModes.ApproxSimple);
+
+        var candidatos = new List<MarcadorCandidato>();
+
+        double areaImagem =
+            cinza.Width *
+            cinza.Height;
+
+        foreach (Point[] contorno in contornos)
+        {
+            double area = Math.Abs(Cv2.ContourArea(contorno));
+
+            if (area <= 0)
+                continue;
+
+            double proporcaoArea = area / areaImagem;
+
+            // Os marcadores precisam ser pequenos em relação
+            // à página, mas não microscópicos.
+            if (proporcaoArea < 0.0002 || proporcaoArea > 0.01)
+                continue;
+
+
+            Rect rect = Cv2.BoundingRect(contorno);
+
+            if (rect.Width <= 0 || rect.Height <= 0)
             {
-                Point2f[] destino =
-                {
-                    new Point2f(0, 0),
-                    new Point2f(LarguraPadrao - 1, 0),
-                    new Point2f(LarguraPadrao - 1, AlturaPadrao - 1),
-                    new Point2f(0, AlturaPadrao - 1)
-                };
-
-                using Mat matriz =
-                    Cv2.GetPerspectiveTransform(pontos, destino);
-
-                var resultado = new Mat();
-
-                Cv2.WarpPerspective(
-                    imagemOrientada,
-                    resultado,
-                    matriz,
-                    new Size(LarguraPadrao, AlturaPadrao),
-                    InterpolationFlags.Linear,
-                    BorderTypes.Constant,
-                    Scalar.White
-                );
-
-                return resultado;
+                continue;
             }
 
-            // ----------------------------------------------------
-            // Fallback:
-            // se não detectar os quatro cantos, usamos o mesmo
-            // padrão de tamanho da sua aplicação.
-            // ----------------------------------------------------
+            double proporcao = (double)rect.Width / rect.Height;
 
-            var redimensionada = new Mat();
+            // Deve se parecer com um quadrado.
+            if (proporcao < 0.70 || proporcao > 1.30)
+                continue;
 
-            Cv2.Resize(
-                imagemOrientada,
-                redimensionada,
-                new Size(LarguraPadrao, AlturaPadrao),
-                0,
-                0,
-                InterpolationFlags.Area
-            );
 
-            return redimensionada;
+            double preenchimento = area / (rect.Width * rect.Height);
+
+            if (preenchimento < 0.50)
+                continue;
+
+            Point2f centro =
+                new Point2f(
+                    rect.X + rect.Width / 2.0f,
+                    rect.Y + rect.Height / 2.0f);
+
+            candidatos.Add(new MarcadorCandidato
+            {
+                Centro = centro,
+                Area = area,
+                Preenchimento = preenchimento
+            });
         }
-        finally
+
+        if (candidatos.Count < 4)
+            return false;
+
+        double margemX = cinza.Width * 0.08;
+        double margemY = cinza.Height * 0.08;
+
+        MarcadorCandidato? superiorEsquerdo =
+            MelhorMarcador(
+                candidatos,
+                0,
+                0);
+
+        MarcadorCandidato? superiorDireito =
+            MelhorMarcador(
+                candidatos,
+                cinza.Width - 1,
+                0);
+
+        MarcadorCandidato? inferiorDireito =
+            MelhorMarcador(
+                candidatos,
+                cinza.Width - 1,
+                cinza.Height - 1);
+
+        MarcadorCandidato? inferiorEsquerdo =
+            MelhorMarcador(
+                candidatos,
+                0,
+                cinza.Height - 1);
+
+        if (superiorEsquerdo == null ||
+            superiorDireito == null ||
+            inferiorDireito == null ||
+            inferiorEsquerdo == null)
         {
-            imagemOrientada.Dispose();
+            return false;
         }
+
+        // Os quatro pontos precisam ser distintos.
+        var lista = new[]
+        {
+            superiorEsquerdo,
+            superiorDireito,
+            inferiorDireito,
+            inferiorEsquerdo
+        };
+
+        if (lista
+            .GroupBy(x =>
+                $"{Math.Round(x.Centro.X)}-" +
+                $"{Math.Round(x.Centro.Y)}")
+            .Count() != 4)
+        {
+            return false;
+        }
+
+        // Confirma a ordem geométrica dos pontos.
+        if (superiorEsquerdo.Centro.X >=
+                superiorDireito.Centro.X ||
+            inferiorEsquerdo.Centro.X >=
+                inferiorDireito.Centro.X ||
+            superiorEsquerdo.Centro.Y >=
+                inferiorEsquerdo.Centro.Y ||
+            superiorDireito.Centro.Y >=
+                inferiorDireito.Centro.Y)
+        {
+            return false;
+        }
+
+        pontos = new[]
+        {
+            superiorEsquerdo.Centro,
+            superiorDireito.Centro,
+            inferiorDireito.Centro,
+            inferiorEsquerdo.Centro
+        };
+
+        return true;
     }
 
+    // ============================================================
+    // ENCONTRAR MELHOR MARCADOR PARA UM CANTO
+    // ============================================================
+
+    private MarcadorCandidato? MelhorMarcador(
+        List<MarcadorCandidato> candidatos,
+        double alvoX,
+        double alvoY)
+    {
+        MarcadorCandidato? melhor = null;
+
+        double menorDistancia = double.MaxValue;
+
+        foreach (MarcadorCandidato candidato
+                 in candidatos)
+        {
+            double dx = candidato.Centro.X - alvoX;
+
+            double dy = candidato.Centro.Y - alvoY;
+
+            double distancia =
+                Math.Sqrt(
+                    dx * dx +
+                    dy * dy);
+
+            if (distancia < menorDistancia)
+            {
+                menorDistancia = distancia;
+
+                melhor = candidato;
+            }
+        }
+
+        return melhor;
+    }
 
     // ============================================================
-    // DETECTAR OS QUATRO CANTOS DA FOLHA
+    // PERSPECTIVA USANDO MARCADORES
     // ============================================================
 
-    private bool TentarEncontrarFolha(
+    private Mat AplicarPerspectivaPorMarcadores(
+        Mat imagem,
+        Point2f[] marcadores)
+    {
+        Point2f[] destino =
+        {
+            // Superior esquerdo
+            new Point2f(
+                (float)MarcadorDestinoEsquerdaX,
+                (float)MarcadorDestinoSuperiorY),
+
+            // Superior direito
+            new Point2f(
+                (float)MarcadorDestinoDireitaX,
+                (float)MarcadorDestinoSuperiorY),
+
+            // Inferior direito
+            new Point2f(
+                (float)MarcadorDestinoDireitaX,
+                (float)MarcadorDestinoInferiorY),
+
+            // Inferior esquerdo
+            new Point2f(
+                (float)MarcadorDestinoEsquerdaX,
+                (float)MarcadorDestinoInferiorY)
+        };
+
+        return AplicarTransformacaoPerspectiva(
+            imagem,
+            marcadores,
+            destino);
+    }
+
+    // ============================================================
+    // PERSPECTIVA GENÉRICA
+    // ============================================================
+
+    private Mat AplicarPerspectiva(
+        Mat imagem,
+        Point2f[] pontos)
+    {
+        Point2f[] destino =
+        {
+            new Point2f(0, 0),
+
+            new Point2f(
+                LarguraPadrao - 1,
+                0),
+
+            new Point2f(
+                LarguraPadrao - 1,
+                AlturaPadrao - 1),
+
+            new Point2f(
+                0,
+                AlturaPadrao - 1)
+        };
+
+        return AplicarTransformacaoPerspectiva(
+            imagem,
+            pontos,
+            destino);
+    }
+
+    private Mat AplicarTransformacaoPerspectiva(
+        Mat imagem,
+        Point2f[] origem,
+        Point2f[] destino)
+    {
+        using Mat matriz =
+            Cv2.GetPerspectiveTransform(
+                origem,
+                destino);
+
+        var resultado = new Mat();
+
+        Cv2.WarpPerspective(
+            imagem,
+            resultado,
+            matriz,
+            new Size(
+                LarguraPadrao,
+                AlturaPadrao),
+            InterpolationFlags.Linear,
+            BorderTypes.Constant,
+            Scalar.White);
+
+        return resultado;
+    }
+
+    // ============================================================
+    // TENTAR ENCONTRAR CANTOS DA FOLHA
+    // ============================================================
+
+    private bool TentarEncontrarCantosFolha(
         Mat cinza,
         out Point2f[] pontosOrdenados)
     {
@@ -286,8 +579,7 @@ public class LeitorDeGabaritoOmr : ILeitorDeGabarito
             cinza,
             suavizada,
             new Size(5, 5),
-            0
-        );
+            0);
 
         using var bordas = new Mat();
 
@@ -295,19 +587,16 @@ public class LeitorDeGabaritoOmr : ILeitorDeGabarito
             suavizada,
             bordas,
             50,
-            150
-        );
+            150);
 
         Cv2.FindContours(
             bordas,
             out Point[][] contornos,
             out _,
             RetrievalModes.External,
-            ContourApproximationModes.ApproxSimple
-        );
+            ContourApproximationModes.ApproxSimple);
 
-        double areaImagem =
-            cinza.Width * cinza.Height;
+        double areaImagem = cinza.Width * cinza.Height;
 
         double maiorArea = 0;
 
@@ -318,24 +607,27 @@ public class LeitorDeGabaritoOmr : ILeitorDeGabarito
             if (contorno.Length < 4)
                 continue;
 
-            double area = Math.Abs(
-                Cv2.ContourArea(contorno)
-            );
+            double area =
+                Math.Abs(
+                    Cv2.ContourArea(contorno));
 
-            // Ignora retângulos pequenos:
-            // caixas de nome, matrícula etc.
-            if (area < areaImagem * 0.60)
+            if (area <
+                areaImagem * 0.55)
+            {
                 continue;
+            }
 
             double perimetro =
-                Cv2.ArcLength(contorno, true);
+                Cv2.ArcLength(
+                    contorno,
+                    true);
 
             Point[] aproximado =
                 Cv2.ApproxPolyDP(
                     contorno,
-                    0.02 * perimetro,
-                    true
-                );
+                    0.02 *
+                    perimetro,
+                    true);
 
             if (aproximado.Length != 4)
                 continue;
@@ -346,638 +638,358 @@ public class LeitorDeGabaritoOmr : ILeitorDeGabarito
             maiorArea = area;
 
             melhor = aproximado
-                .Select(p => new Point2f(p.X, p.Y))
-                .ToArray();
+                    .Select(
+                        p => new Point2f(
+                            p.X,
+                            p.Y))
+                    .ToArray();
         }
 
         if (melhor == null)
             return false;
 
-        pontosOrdenados =
-            OrdenarPontos(melhor);
+        pontosOrdenados = OrdenarPontos(melhor);
 
         return true;
     }
 
-
     // ============================================================
-    // ORDENAR CANTOS:
+    // ORDENAR PONTOS
     // TL, TR, BR, BL
     // ============================================================
 
-    private Point2f[] OrdenarPontos(Point2f[] pontos)
+    private Point2f[] OrdenarPontos(
+        Point2f[] pontos)
     {
         var resultado = new Point2f[4];
 
-        Point2f superiorEsquerdo =
-            pontos.OrderBy(p => p.X + p.Y).First();
+        resultado[0] =
+            pontos
+                .OrderBy(
+                    p => p.X + p.Y)
+                .First();
 
-        Point2f inferiorDireito =
-            pontos.OrderByDescending(p => p.X + p.Y).First();
+        resultado[2] =
+            pontos
+                .OrderByDescending(
+                    p => p.X + p.Y)
+                .First();
 
-        Point2f superiorDireito =
-            pontos.OrderBy(p => p.Y - p.X).First();
+        resultado[1] =
+            pontos
+                .OrderBy(
+                    p => p.Y - p.X)
+                .First();
 
-        Point2f inferiorEsquerdo =
-            pontos.OrderByDescending(p => p.Y - p.X).First();
-
-        resultado[0] = superiorEsquerdo;
-        resultado[1] = superiorDireito;
-        resultado[2] = inferiorDireito;
-        resultado[3] = inferiorEsquerdo;
-
-        return resultado;
-    }
-
-
-    // ============================================================
-    // POLARIDADE
-    // ============================================================
-
-    private Mat CorrigirPolaridade(Mat imagemCinza)
-    {
-        var resultado = imagemCinza.Clone();
-
-        double media =
-            Cv2.Mean(imagemCinza).Val0;
-
-        // Folha normal:
-        // fundo claro -> média alta
-        //
-        // Imagem negativa:
-        // fundo escuro -> média baixa
-        //
-        // Após normalização, essa heurística funciona bem
-        // para o formulário inteiro.
-
-        if (media < 127)
-        {
-            Cv2.BitwiseNot(
-                resultado,
-                resultado
-            );
-        }
+        resultado[3] =
+            pontos
+                .OrderByDescending(
+                    p => p.Y - p.X)
+                .First();
 
         return resultado;
     }
-
-
-    // ============================================================
-    // CONTRASTE
-    // ============================================================
-
-    private Mat MelhorarContraste(Mat imagemCinza)
-    {
-        var resultado = new Mat();
-
-        using var clahe =
-            Cv2.CreateCLAHE(
-                clipLimit: 2.0,
-                tileGridSize: new Size(8, 8)
-            );
-
-        clahe.Apply(
-            imagemCinza,
-            resultado
-        );
-
-        return resultado;
-    }
-
 
     // ============================================================
     // MATRÍCULA
     // ============================================================
 
-    private string LerMatricula(Mat imagem)
+    private string LerMatricula(
+    Mat imagemCinza,
+    Mat imagemDebug)
     {
-        char[] matricula = new char[7];
+        char[] matricula = new char[MatriculaX.Length];
 
-        for (int coluna = 0; coluna < 7; coluna++)
+        for (int col = 0; col < MatriculaX.Length; col++)
         {
-            double x = XMatricula[coluna];
+            double centroX =
+                MatriculaX[col] * imagemCinza.Cols;
 
-            double melhorScore = -1;
-
+            double maiorScore = -1;
+            double segundoMaiorScore = -1;
             int melhorDigito = -1;
-
-            double segundoMelhorScore = -1;
-
-            // ----------------------------------------------------
-            // Cada coluna possui os números 0 a 9.
-            // ----------------------------------------------------
 
             for (int digito = 0; digito <= 9; digito++)
             {
-                double y =
-                    YPrimeiraMatricula +
-                    (digito * StepYMatricula);
+                double yNormalizado =
+                    MatriculaPrimeiraY +
+                    digito * MatriculaStepY;
 
-                double score =
-                    ObterMelhorScoreNaVizinhanca(
-                        imagem,
-                        x,
-                        y,
-                        BuscaXY
-                    );
+                double centroY =
+                    yNormalizado * imagemCinza.Rows;
 
-                if (score > melhorScore)
+                double score = CalcularScorePreenchimento(
+                    imagemCinza,
+                    centroX,
+                    centroY);
+
+                int x = (int)Math.Round(centroX);
+                int y = (int)Math.Round(centroY);
+
+                Cv2.Circle(
+                    imagemDebug,
+                    new Point(x, y),
+                    5,
+                    new Scalar(0, 0, 255),
+                    1);
+
+                if (score > maiorScore)
                 {
-                    segundoMelhorScore = melhorScore;
-
-                    melhorScore = score;
-
+                    segundoMaiorScore = maiorScore;
+                    maiorScore = score;
                     melhorDigito = digito;
                 }
-                else if (score > segundoMelhorScore)
+                else if (score > segundoMaiorScore)
                 {
-                    segundoMelhorScore = score;
+                    segundoMaiorScore = score;
                 }
             }
 
-
-            // ----------------------------------------------------
-            // Segurança:
-            // não aceita um dígito apenas porque ele tem o maior
-            // score. Ele precisa ter uma marca realmente forte.
-            // ----------------------------------------------------
-
-            bool marcaValida =
-                melhorDigito >= 0 &&
-                melhorScore >= MinScoreMatricula &&
-                (melhorScore - segundoMelhorScore)
-                    >= MinMargemMatricula;
-
-            if (marcaValida)
+            if (melhorDigito < 0 ||
+                maiorScore < LimiteMarcacao)
             {
-                matricula[coluna] =
-                    (char)('0' + melhorDigito);
+                matricula[col] = '?';
+            }
+            else if (
+                maiorScore - segundoMaiorScore < MargemMinima)
+            {
+                matricula[col] = '?';
             }
             else
             {
-                // ? significa:
-                // não foi possível determinar com segurança.
-                //
-                // Isso é propositalmente melhor do que colocar
-                // "0" automaticamente.
-                matricula[coluna] = '?';
+                matricula[col] = (char)('0' + melhorDigito);
             }
         }
 
         return new string(matricula);
     }
 
-
-    // ============================================================
-    // 50 QUESTÕES
-    // ============================================================
-
-    private string Ler50Questoes(Mat imagem)
+    private string Ler50Questoes(
+    Mat imagemCinza,
+    Mat imagemDebug)
     {
-        char[] gabarito = new char[50];
+        char[] respostas = new char[50];
 
         const string alternativas = "ABCDE";
 
-        // ============================================================
-        // QUESTÕES 01-25
-        // ============================================================
-
         for (int q = 0; q < 25; q++)
         {
-            double y =
-                YPrimeiraQuestaoEsquerda +
-                (q * StepYQuestoes);
+            double yNormalizado =
+                RespostaPrimeiraY + q * RespostaStepY;
 
-            // Corrige a inclinação horizontal da folha.
-            double deslocamentoX =
-                q * InclinacaoXPorLinha;
+            double centroY =
+                yNormalizado * imagemCinza.Rows;
 
-            double[] xCorrigidos =
-                XQuestoesEsquerda
-                    .Select(x => x + deslocamentoX)
-                    .ToArray();
+            respostas[q] = IdentificarAlternativa(
+                imagemCinza,
+                imagemDebug,
+                RespostasEsquerdaX,
+                centroY,
+                alternativas);
 
-            gabarito[q] =
-                IdentificarAlternativa(
-                    imagem,
-                    xCorrigidos,
-                    y,
-                    alternativas
-                );
+            respostas[q + 25] = IdentificarAlternativa(
+                imagemCinza,
+                imagemDebug,
+                RespostasDireitaX,
+                centroY,
+                alternativas);
         }
 
-
-        // ============================================================
-        // QUESTÕES 26-50
-        // ============================================================
-
-        for (int q = 0; q < 25; q++)
-        {
-            double y =
-                YPrimeiraQuestaoDireita +
-                (q * StepYQuestoes);
-
-            double deslocamentoX =
-                q * InclinacaoXPorLinha;
-
-            double[] xCorrigidos =
-                XQuestoesDireita
-                    .Select(x => x + deslocamentoX)
-                    .ToArray();
-
-            gabarito[q + 25] =
-                IdentificarAlternativa(
-                    imagem,
-                    xCorrigidos,
-                    y,
-                    alternativas
-                );
-        }
-
-        return new string(gabarito);
+        return new string(respostas);
     }
-
-
-    // ============================================================
-    // IDENTIFICAR ALTERNATIVA
-    // ============================================================
 
     private char IdentificarAlternativa(
-    Mat imagem,
-    double[] xAlternativas,
-    double yNominal,
-    string alternativas)
+        Mat imagemCinza,
+        Mat imagemDebug,
+        double[] coordenadasX,
+        double centroY,
+        string alternativas)
     {
-        double[] scores = new double[5];
+        double[] scores = new double[coordenadasX.Length];
 
-        // ============================================================
-        // Calcula um score robusto para cada alternativa.
-        //
-        // Não procuramos "o melhor pixel".
-        // Fazemos uma média de uma pequena vizinhança.
-        //
-        // Isso evita que a borda impressa da bolinha gere falso
-        // positivo.
-        // ============================================================
-
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < coordenadasX.Length; i++)
         {
-            scores[i] =
-                ObterMelhorScoreNaVizinhanca(
-                    imagem,
-                    xAlternativas[i],
-                    yNominal,
-                    BuscaXY
-                );
+            double centroX =
+                coordenadasX[i] * imagemCinza.Cols;
+
+            scores[i] = CalcularScorePreenchimento(
+                imagemCinza,
+                centroX,
+                centroY);
+
+            int x = (int)Math.Round(centroX);
+            int y = (int)Math.Round(centroY);
+
+            // Marca o centro estimado da bolinha.
+            Cv2.Circle(
+                imagemDebug,
+                new Point(x, y),
+                RaioCentro,
+                new Scalar(0, 255, 0),
+                1);
+
+            // Contorno externo da região analisada.
+            Cv2.Rectangle(
+                imagemDebug,
+                new Rect(
+                    x - TamanhoRoi / 2,
+                    y - TamanhoRoi / 2,
+                    TamanhoRoi,
+                    TamanhoRoi),
+                new Scalar(0, 255, 0),
+                1);
         }
 
-        // ============================================================
-        // Maior score
-        // ============================================================
+        int melhor = Array.IndexOf(scores, scores.Max());
 
-        int indiceMaior = 0;
-
-        double maiorScore = scores[0];
-        double segundoMaior = 0;
-
-        for (int i = 1; i < scores.Length; i++)
-        {
-            if (scores[i] > maiorScore)
-            {
-                segundoMaior = maiorScore;
-                maiorScore = scores[i];
-                indiceMaior = i;
-            }
-            else if (scores[i] > segundoMaior)
-            {
-                segundoMaior = scores[i];
-            }
-        }
-
-        // ============================================================
-        // Mediana das 5 alternativas
-        // ============================================================
-
-        double mediana =
-            CalcularMediana(scores);
-
-        double contraste =
-            maiorScore - mediana;
-
-        double margem =
-            maiorScore - segundoMaior;
-
-        // ============================================================
-        // REGRA 1:
-        // Questão claramente em branco.
-        //
-        // Na sua folha vazia existe a impressão das letras/bordas,
-        // mas não existe preenchimento real no centro.
-        // ============================================================
-
-        const double limiteBranco = 0.32;
-
-        if (maiorScore < limiteBranco)
+        if (melhor < 0 ||
+            scores[melhor] < LimiteMarcacao)
         {
             return ' ';
         }
 
-        // ============================================================
-        // REGRA 2:
-        // Score ainda baixo e sem contraste suficiente.
-        //
-        // Isso também deve ser considerado vazio, em vez de "?".
-        // ============================================================
+        double segundoMaior = scores
+            .Where((score, indice) => indice != melhor)
+            .DefaultIfEmpty(0)
+            .Max();
 
-        if (maiorScore < MinScoreQuestao &&
-            contraste < MinContrasteQuestao)
+        if (scores[melhor] - segundoMaior < MargemMinima)
         {
-            return ' ';
-        }
-
-        // ============================================================
-        // REGRA 3:
-        // Existe alguma marca, mas ela é fraca.
-        // ============================================================
-
-        if (maiorScore < MinScoreQuestao)
-        {
+            // Duas alternativas com scores muito próximos:
+            // marcação ambígua.
             return '?';
         }
 
-        // ============================================================
-        // REGRA 4:
-        // Existem duas alternativas muito próximas.
-        //
-        // Exemplo:
-        // A = 0.83
-        // B = 0.79
-        //
-        // Não devemos adivinhar.
-        // ============================================================
-
-        if (margem < MinMargemQuestao)
-        {
-            return '?';
-        }
-
-        // ============================================================
-        // RESPOSTA IDENTIFICADA
-        // ============================================================
-
-        return alternativas[indiceMaior];
+        return alternativas[melhor];
     }
-
     // ============================================================
-    // BUSCAR MELHOR SCORE AO REDOR DA COORDENADA
-    // ============================================================
-
-    private double ObterMelhorScoreNaVizinhanca(
-    Mat imagem,
-    double x,
-    double y,
-    int busca)
-    {
-        double soma = 0;
-        int quantidade = 0;
-
-        int centroX = (int)Math.Round(x);
-        int centroY = (int)Math.Round(y);
-
-        for (int dx = -busca; dx <= busca; dx++)
-        {
-            for (int dy = -busca; dy <= busca; dy++)
-            {
-                int novoX =
-                    centroX + dx;
-
-                int novoY =
-                    centroY + dy;
-
-                double score =
-                    CalcularScorePreenchimento(
-                        imagem,
-                        novoX,
-                        novoY
-                    );
-
-                soma += score;
-                quantidade++;
-            }
-        }
-
-        if (quantidade == 0)
-            return 0;
-
-        return soma / quantidade;
-    }
-
-    // ============================================================
-    // SCORE DA BOLINHA
-    // ============================================================
+    // SCORE DE PREENCHIMENTO
     //
-    // A grande diferença em relação ao código anterior:
+    // Não contamos a borda da bolinha.
     //
-    // NÃO contamos a borda inteira da bolinha.
+    // Centro:
+    //     mede o preenchimento.
     //
-    // Analisamos somente o círculo central.
+    // Anel:
+    //     mede o fundo local.
     //
-    // Bolinha vazia:
-    //     A/B/C/D/E impressos -> score baixo
-    //
-    // Bolinha marcada:
-    //     preenchimento real   -> score alto
-    //
+    // Assim funciona melhor com lápis, caneta, sombra e fotografia.
     // ============================================================
 
     private double CalcularScorePreenchimento(
-    Mat imagem,
-    int centroX,
-    int centroY)
+        Mat imagem,
+        double centroX,
+        double centroY)
     {
-        int metade =
-            TamanhoRoi / 2;
+        int cx = (int)Math.Round(centroX);
 
-        int x =
-            centroX - metade;
+        int cy = (int)Math.Round(centroY);
 
-        int y =
-            centroY - metade;
+        int metade = TamanhoRoi / 2;
 
-        // ============================================================
-        // Verificação de limites
-        // ============================================================
+        int x = cx - metade;
 
-        if (x < 0 ||
+        int y = cy - metade;
+
+        if (
+            x < 0 ||
             y < 0 ||
-            x + TamanhoRoi > imagem.Width ||
-            y + TamanhoRoi > imagem.Height)
+            x + TamanhoRoi >
+                imagem.Width ||
+            y + TamanhoRoi >
+                imagem.Height)
         {
             return 0;
         }
 
-
-        using var roi =
-            new Mat(
+        using var roi = new Mat(
                 imagem,
                 new Rect(
                     x,
                     y,
                     TamanhoRoi,
-                    TamanhoRoi
-                )
-            );
+                    TamanhoRoi));
 
+        // --------------------------------------------------------
+        // Máscara do centro
+        // --------------------------------------------------------
 
-        // ============================================================
-        // MÁSCARA DO CENTRO
-        //
-        // Aqui analisamos somente o interior da bolinha.
-        // A borda impressa fica fora dessa região.
-        // ============================================================
-
-        using var mascaraCentro =
-            new Mat(
-                roi.Size(),
+        using var mascaraCentro = new Mat(
+                TamanhoRoi,
+                TamanhoRoi,
                 MatType.CV_8UC1,
-                Scalar.Black
-            );
+                Scalar.Black);
 
         Cv2.Circle(
             mascaraCentro,
-            new Point(metade, metade),
-            RaioMascara,
+            new Point(
+                metade,
+                metade),
+            RaioCentro,
             Scalar.White,
-            -1
-        );
+            -1);
 
-
-        // ============================================================
-        // MÁSCARA DO FUNDO
+        // --------------------------------------------------------
+        // Máscara do fundo
         //
-        // Usa os quatro cantos da ROI para saber qual é o nível de
-        // iluminação local da folha.
-        //
-        // Isso ajuda muito em fotos com sombra.
-        // ============================================================
+        // Primeiro cria um círculo maior.
+        // Depois remove a região interna.
+        // --------------------------------------------------------
 
         using var mascaraFundo =
             new Mat(
-                roi.Size(),
+                TamanhoRoi,
+                TamanhoRoi,
                 MatType.CV_8UC1,
-                Scalar.Black
-            );
+                Scalar.Black);
 
-        int tamanhoCanto = 4;
-
-        // Canto superior esquerdo
-        Cv2.Rectangle(
+        Cv2.Circle(
             mascaraFundo,
-            new Rect(
-                0,
-                0,
-                tamanhoCanto,
-                tamanhoCanto
-            ),
+            new Point(
+                metade,
+                metade),
+            RaioFundoExterno,
             Scalar.White,
-            -1
-        );
+            -1);
 
-        // Canto superior direito
-        Cv2.Rectangle(
+        Cv2.Circle(
             mascaraFundo,
-            new Rect(
-                TamanhoRoi - tamanhoCanto,
-                0,
-                tamanhoCanto,
-                tamanhoCanto
-            ),
-            Scalar.White,
-            -1
-        );
+            new Point(
+                metade,
+                metade),
+            RaioFundoInterno,
+            Scalar.Black,
+            -1);
 
-        // Canto inferior esquerdo
-        Cv2.Rectangle(
-            mascaraFundo,
-            new Rect(
-                0,
-                TamanhoRoi - tamanhoCanto,
-                tamanhoCanto,
-                tamanhoCanto
-            ),
-            Scalar.White,
-            -1
-        );
+        // --------------------------------------------------------
+        // Fundo local
+        // --------------------------------------------------------
 
-        // Canto inferior direito
-        Cv2.Rectangle(
-            mascaraFundo,
-            new Rect(
-                TamanhoRoi - tamanhoCanto,
-                TamanhoRoi - tamanhoCanto,
-                tamanhoCanto,
-                tamanhoCanto
-            ),
-            Scalar.White,
-            -1
-        );
-
-
-        // ============================================================
-        // MÉDIA DO FUNDO
-        // ============================================================
-
-        double intensidadeFundo =
+        double fundo =
             Cv2.Mean(
                 roi,
-                mascaraFundo
-            ).Val0;
+                mascaraFundo)
+                .Val0;
 
+        // --------------------------------------------------------
+        // Centro
+        // --------------------------------------------------------
 
-        // ============================================================
-        // MÉDIA DO CENTRO DA BOLINHA
-        // ============================================================
-
-        double intensidadeCentro =
+        double centro =
             Cv2.Mean(
                 roi,
-                mascaraCentro
-            ).Val0;
+                mascaraCentro)
+                .Val0;
 
-
-        // ============================================================
-        // SCORE RELATIVO
-        //
-        // Fundo claro + centro escuro = score alto
-        //
-        // Fundo claro + centro praticamente igual = score baixo
-        //
-        // Exemplo:
-        //
-        // fundo = 250
-        // centro = 220
-        // score = 0.12  -> provavelmente vazio
-        //
-        // fundo = 250
-        // centro = 40
-        // score = 0.84  -> preenchido
-        // ============================================================
-
-        if (intensidadeFundo <= 1)
+        if (fundo <= 1)
             return 0;
 
-        double score =
-            (
-                intensidadeFundo -
-                intensidadeCentro
-            )
-            /
-            intensidadeFundo;
+        // --------------------------------------------------------
+        // Quanto mais escuro o centro em relação ao fundo,
+        // maior o preenchimento.
+        // --------------------------------------------------------
 
-
-        // ============================================================
-        // Limitar entre 0 e 1
-        // ============================================================
+        double score = (fundo - centro) / fundo;
 
         if (score < 0)
             score = 0;
@@ -989,16 +1001,15 @@ public class LeitorDeGabaritoOmr : ILeitorDeGabarito
     }
 
     // ============================================================
-    // MEDIANA
+    // CANDIDATO A MARCADOR
     // ============================================================
 
-    private double CalcularMediana(double[] valores)
+    private sealed class MarcadorCandidato
     {
-        double[] ordenados =
-            (double[])valores.Clone();
+        public Point2f Centro { get; set; }
 
-        Array.Sort(ordenados);
+        public double Area { get; set; }
 
-        return ordenados[ordenados.Length / 2];
+        public double Preenchimento { get; set; }
     }
 }
