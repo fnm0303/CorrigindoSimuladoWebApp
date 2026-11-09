@@ -390,6 +390,43 @@ public sealed class CorrecaoController : Controller
         return View("/Modulos/Correcoes/Apresentacao/Views/Cadastrar.cshtml", viewModel);
     }
 
+    [HttpGet]
+    public ActionResult ExportarExcel(Guid id)
+    {
+        Correcao? correcao = repositorioCorrecao.SelecionarPorId(id);
+        if (correcao == null)
+            return NotFound();
+
+        // Cria o conteúdo estruturado em formato CSV/Tabular compatível com Excel (.csv abre direto no Excel)
+        var relatorio = new System.Text.StringBuilder();
+        relatorio.AppendLine($"Aluno:;{correcao.Aluno.Nome}");
+        relatorio.AppendLine($"Prova:;{correcao.Prova.Nome}");
+        relatorio.AppendLine($"Acertos:;{correcao.NumeroAcertos} de {correcao.Prova.QuantidadeQuestoes}");
+        relatorio.AppendLine();
+        relatorio.AppendLine("Questão;Gabarito Prova;Resposta Aluno;Situação");
+        relatorio.AppendLine("Questão;Gabarito Correto;Resposta Aluno;Situação;Pontuação");
+
+        string gabaritoAluno = correcao.GabaritoAluno.Replace(" ", "").ToUpper();
+        string gabaritoProva = correcao.Prova.GabaritoCorreto.Replace(" ", "").ToUpper();
+
+        for (int i = 0; i < correcao.Prova.QuantidadeQuestoes; i++)
+        {
+            char respAluno = gabaritoAluno[i];
+            char respProva = gabaritoProva[i];
+            string status = respAluno == respProva ? "Correta" : "Incorreta";
+
+            int pontuacao = respAluno == respProva ? 1 : 0;
+
+            relatorio.AppendLine($"Questão {i + 1};{respProva};{respAluno};{status};{pontuacao}");
+        }
+
+        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(relatorio.ToString());
+        string nomeArquivo = $"Resultado_{correcao.Aluno.Nome.Replace(" ", "_")}.csv";
+
+        // Retorna o arquivo para download como planilha
+        return File(bytes, "text/csv", nomeArquivo);
+    }
+
     private List<SelecionarItemViewModel>? ObterAlunosDisponiveis()
     {
         List<SelecionarItemViewModel> viewModels = new();
