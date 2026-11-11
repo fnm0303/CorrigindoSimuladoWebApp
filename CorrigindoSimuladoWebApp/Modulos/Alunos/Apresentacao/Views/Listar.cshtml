@@ -12,10 +12,10 @@
             <h2 class="fw-bold mb-1 d-flex align-items-center gap-2" style="color: #0f2d59; letter-spacing: -0.5px;">
                 <i class="bi bi-people-fill"></i> Alunos Cadastrados
             </h2>
-            <p class="text-muted mb-0">Gerencie os alunos e suas respectivas turmas.</p>
+            <p class="text-muted mb-0">Gerencie os alunos e suas respectivas turmas de forma organizada.</p>
         </div>
 
-        <div>
+        <div class="d-flex gap-2 align-items-center">
             <a asp-controller="Aluno" asp-action="Cadastrar"
                class="btn text-white shadow-sm rounded-pill px-4 fw-semibold"
                style="background-color: #0f2d59; transition: 0.2s;">
@@ -28,127 +28,155 @@
         </div>
     </div>
 
-    <!-- Grid de Cards -->
-    <div class="row g-4">
-        @if (Model != null && Model.Any())
-        {
-            foreach (var aluno in Model)
-            {
-                <!-- Card do Aluno -->
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 border-start border-5 position-relative hover-card"
-                         style="border-color: #0f2d59 !important;">
-                        <div class="card-body d-flex flex-column p-4">
+    @if (Model != null && Model.Any())
+    {
+        <!-- Barra de Busca Rápida -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 ps-3 rounded-start-pill text-muted">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" id="filtroAluno" class="form-control bg-light border-0 rounded-end-pill py-2"
+                       placeholder="Digite o nome ou matrícula para filtrar os alunos..." onkeyup="filtrarAlunos()">
+            </div>
+        </div>
 
-                            <!-- Ícone e Turma -->
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                     style="width: 48px; height: 48px;">
-                                    <i class="bi bi-person fs-3" style="color: #0f2d59;"></i>
-                                </div>
-                                <span class="badge rounded-pill fw-normal"
-                                      style="background-color: #e3ebe3; color: #0f2d59; border: 1px solid #c9d8c9;">
-                                    <i class="bi bi-easel2 me-1"></i> @aluno.NomeTurma
-                                </span>
-                            </div>
-
-                            <!-- Nome do Aluno -->
-                            <h5 class="card-title fw-bold mb-1 text-truncate" style="color: #0f2d59;" title="@aluno.Nome">
-                                @aluno.Nome
-                            </h5>
-
-                            <!-- Matrícula -->
-                            <div class="mb-4 text-muted small">
-                                <span class="text-uppercase fw-semibold" style="font-size: 0.75rem;">Matrícula</span><br />
-                                <span class="font-monospace fs-6 text-dark d-flex align-items-center mt-1">
-                                    <i class="bi bi-hash text-muted"></i>@aluno.NumeroDeMatricula
-                                </span>
-                            </div>
-
-                            <!-- Ações (Ficam presas na parte inferior do card) -->
-                            <div class="mt-auto d-flex gap-2">
-                                <a asp-controller="Aluno" asp-action="Editar" asp-route-id="@aluno.Id"
-                                   class="btn btn-sm btn-outline-primary flex-grow-1 rounded-pill fw-semibold">
-                                    <i class="bi bi-pencil-square me-1"></i> Editar
-                                </a>
-
-                                <button type="button" class="btn btn-sm btn-outline-danger flex-grow-1 rounded-pill fw-semibold"
-                                        data-bs-toggle="modal" data-bs-target="#modalExcluir-@aluno.Id">
-                                    <i class="bi bi-trash me-1"></i> Excluir
-                                </button>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- Modal de Exclusão (Mantido o seu original, apenas com leves ajustes de borda arredondada) -->
-                    <div class="modal fade text-start" id="modalExcluir-@aluno.Id" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content border-0 shadow rounded-4">
-
-                                <div class="modal-header text-white border-0 rounded-top-4" style="background-color: #0f2d59;">
-                                    <h5 class="modal-title fs-5"><i class="bi bi-shield-exclamation me-2"></i>Confirmar Exclusão
-                                    </h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                            aria-label="Fechar"></button>
-                                </div>
-
-                                <div class="modal-body p-4 p-md-5 text-center">
-                                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4"
-                                         style="width: 80px; height: 80px;">
-                                        <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 2.5rem;"></i>
+        <!-- Card da Tabela -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-5">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tabelaAlunos">
+                    <thead style="background-color: #0f2d59; color: white;">
+                        <tr>
+                            <th class="ps-4 py-3" style="width: 30%;">Nome do Aluno</th>
+                            <th class="py-3" style="width: 20%;">Matrícula</th>
+                            <th class="py-3" style="width: 25%;">Turma</th>
+                            <th class="text-center py-3 pe-4" style="width: 25%;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var aluno in Model)
+                        {
+                            <tr class="linha-aluno">
+                                <!-- Nome -->
+                                <td class="ps-4 fw-bold text-dark py-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-secondary flex-shrink-0"
+                                             style="width: 36px; height: 36px;">
+                                            <i class="bi bi-person fs-6" style="color: #0f2d59;"></i>
+                                        </div>
+                                        <span class="nome-aluno">@aluno.Nome</span>
                                     </div>
-                                    <p class="fs-5 text-dark mb-2">
-                                        Deseja realmente excluir o aluno<br><strong>@aluno.Nome</strong>?
-                                    </p>
-                                    <span class="text-danger small fw-semibold">Esta ação não poderá ser desfeita.</span>
-                                </div>
+                                </td>
 
-                                <div class="modal-footer bg-light border-0 rounded-bottom-4 justify-content-center gap-2 pb-4">
-                                    <button type="button" class="btn btn-light border shadow-sm rounded-pill px-4"
-                                            data-bs-dismiss="modal">
-                                        Cancelar
-                                    </button>
-                                    <form asp-controller="Aluno" asp-action="Excluir" asp-route-id="@aluno.Id" method="post"
-                                          class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-danger shadow-sm rounded-pill px-4">
-                                            <i class="bi bi-trash me-2"></i>Sim, Excluir
+                                <!-- Matrícula -->
+                                <td class="font-monospace text-muted py-3 matricula-aluno">
+                                    <i class="bi bi-hash text-muted"></i>@aluno.NumeroDeMatricula
+                                </td>
+
+                                <!-- Turma -->
+                                <td class="py-3">
+                                    <span class="badge rounded-pill fw-normal px-3 py-2"
+                                          style="background-color: #e3ebe3; color: #0f2d59; border: 1px solid #c9d8c9;">
+                                        <i class="bi bi-easel2 me-1"></i> @aluno.NomeTurma
+                                    </span>
+                                </td>
+
+                                <!-- Ações -->
+                                <td class="text-center pe-4 py-3">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a asp-controller="Aluno" asp-action="Editar" asp-route-id="@aluno.Id"
+                                           class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
+                                            <i class="bi bi-pencil-square me-1"></i> Editar
+                                        </a>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold"
+                                                data-bs-toggle="modal" data-bs-target="#modalExcluir-@aluno.Id">
+                                            <i class="bi bi-trash me-1"></i> Excluir
                                         </button>
-                                    </form>
-                                </div>
+                                    </div>
+                                </td>
+                            </tr>
 
-                            </div>
-                        </div>
+                            <!-- Modal de Exclusão (Mantido integrado por linha) -->
+                            <div class="modal fade text-start" id="modalExcluir-@aluno.Id" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content border-0 shadow rounded-4">
+                                        <div class="modal-header text-white border-0 rounded-top-4"
+                                             style="background-color: #0f2d59;">
+                                            <h5 class="modal-title fs-5"><i class="bi bi-shield-exclamation me-2"></i>Confirmar
+                                                Exclusão</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                                        aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body p-4 p-md-5 text-center">
+                                                <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4"
+                                                     style="width: 80px; height: 80px;">
+                                                    <i class="bi bi-exclamation-triangle-fill text-warning"
+                                                       style="font-size: 2.5rem;"></i>
+                                                </div>
+                                                <p class="fs-5 text-dark mb-2">
+                                                    Deseja realmente excluir o aluno<br><strong>@aluno.Nome</strong>?
+                                                </p>
+                                                <span class="text-danger small fw-semibold">Esta ação não poderá ser
+                                                    desfeita.</span>
+                                                </div>
+                                                <div
+                                                    class="modal-footer bg-light border-0 rounded-bottom-4 justify-content-center gap-2 pb-4">
+                                                    <button type="button" class="btn btn-light border shadow-sm rounded-pill px-4"
+                                                            data-bs-dismiss="modal">
+                                                        Cancelar
+                                                    </button>
+                                                    <form asp-controller="Aluno" asp-action="Excluir" asp-route-id="@aluno.Id"
+                                                          method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-danger shadow-sm rounded-pill px-4">
+                                                            <i class="bi bi-trash me-2"></i>Sim, Excluir
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </tbody>
+                        </table>
                     </div>
-                    <!-- Fim Modal -->
-
                 </div>
             }
-        }
-        else
-        {
-            <!-- Estado Vazio (Empty State) -->
-            <div class="col-12">
-                <div class="p-5 bg-white shadow-sm rounded-4 border-0 text-center">
-                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="Sem dados"
-                         style="width: 120px; opacity: 0.5;" class="mb-4" />
-                    <h4 class="text-dark fw-bold mb-2">Nenhum aluno cadastrado</h4>
-                    <p class="text-muted fs-6 mb-4">Parece que você ainda não adicionou nenhum aluno ao sistema.</p>
+    else
+            {
+                <!-- Estado Vazio (Empty State) -->
+                <div class="col-12">
+                    <div class="p-5 bg-white shadow-sm rounded-4 border-0 text-center">
+                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="Sem dados"
+                             style="width: 120px; opacity: 0.5;" class="mb-4" />
+                        <h4 class="text-dark fw-bold mb-2">Nenhum aluno cadastrado</h4>
+                        <p class="text-muted fs-6 mb-4">Parece que você ainda não adicionou nenhum aluno ao sistema.</p>
+                        <a asp-controller="Aluno" asp-action="Cadastrar"
+                           class="btn text-white rounded-pill px-4 fw-semibold shadow-sm" style="background-color: #0f2d59;">
+                            <i class="bi bi-person-plus-fill me-2"></i> Cadastrar Primeiro Aluno
+                        </a>
+                    </div>
                 </div>
-            </div>
-        }
-    </div>
-</div>
+            }
+        </div>
 
-<!-- Estilo extra para o efeito Hover no Card -->
-<style>
-    .hover-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+        <!-- Script simples para o Filtro de Busca Instantânea -->
+        <script>
+            function filtrarAlunos() {
+                let input = document.getElementById('filtroAluno').value.toLowerCase();
+                let linhas = document.getElementsByClassName('linha-aluno');
 
-    .hover-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(15, 45, 89, 0.1) !important;
-    }
-</style>
+                for (let i = 0; i < linhas.length; i++) {
+                    let nome = linhas[i].querySelector('.nome-aluno').textContent.toLowerCase();
+                    let matricula = linhas[i].querySelector('.matricula-aluno').textContent.toLowerCase();
+
+                    if (nome.includes(input) || matricula.includes(input)) {
+                        linhas[i].style.display = "";
+                    } else {
+                        linhas[i].style.display = "none";
+                    }
+                }
+            }
+        </script>

@@ -26,19 +26,15 @@ public sealed class AlunoController : Controller
     [HttpGet]
     public ActionResult Listar()
     {
-        List<ListarAlunoViewModel> viewModels = new List<ListarAlunoViewModel>();
-
-        foreach (Aluno a in repositorioAluno.SelecionarTodos())
-        {
-            ListarAlunoViewModel viewModel = new ListarAlunoViewModel(
-                a.Id,
-                a.NumeroDeMatricula,
-                a.Nome,
-                a.Turma.Nome
-            );
-
-            viewModels.Add(viewModel);
-        }
+        var viewModels = repositorioAluno.SelecionarTodos()
+        .OrderBy(a => a.Nome) // <--- Ordena os alunos alfabeticamente pelo nome
+        .Select(a => new ListarAlunoViewModel(
+            a.Id,
+            a.NumeroDeMatricula,
+            a.Nome,
+            a.Turma.Nome
+        ))
+        .ToList();
         return View(viewModels);
     }
 
