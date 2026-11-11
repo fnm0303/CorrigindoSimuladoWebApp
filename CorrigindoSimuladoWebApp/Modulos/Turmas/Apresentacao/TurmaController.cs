@@ -1,3 +1,4 @@
+using CorrigindoSimuladoWebApp.Modulos.Alunos.Infraestrutura;
 using CorrigindoSimuladoWebApp.Modulos.Turmas.Dominio;
 using CorrigindoSimuladoWebApp.Modulos.Turmas.Infraestrutura;
 using Microsoft.AspNetCore.Mvc;
@@ -6,10 +7,12 @@ namespace CorrigindoSimuladoWebApp.Modulos.Turmas.Apresentacao;
 
 public sealed class TurmaController : Controller
 {
-    private readonly RepositorioTurmaEmArquivo repositorio;
-    public TurmaController(RepositorioTurmaEmArquivo repositorio)
+    private readonly RepositorioTurmaEmArquivo repositorioTurma;
+    private readonly RepositorioAlunoEmArquivo repositorioAluno;
+    public TurmaController(RepositorioTurmaEmArquivo repositorioTurma, RepositorioAlunoEmArquivo repositorioAluno)
     {
-        this.repositorio = repositorio;
+        this.repositorioTurma = repositorioTurma;
+        this.repositorioAluno = repositorioAluno;
     }
 
     [HttpGet]
@@ -23,7 +26,7 @@ public sealed class TurmaController : Controller
     {
         List<ListarTurmaViewModel> viewModels = new List<ListarTurmaViewModel>();
 
-        foreach (Turma t in repositorio.SelecionarTodos())
+        foreach (Turma t in repositorioTurma.SelecionarTodos())
         {
             ListarTurmaViewModel viewModel = new ListarTurmaViewModel(
                 t.Id,
@@ -35,6 +38,32 @@ public sealed class TurmaController : Controller
             viewModels.Add(viewModel);
         }
         return View(viewModels);
+    }
+
+    [HttpGet]
+    public ActionResult DetalhesAlunos(Guid id)
+    {
+        var turma = repositorioTurma.SelecionarPorId(id); // Ajuste para o método do seu repositório de turmas
+        if (turma == null)
+            return NotFound();
+
+        // Busca todos os alunos e filtra os que pertencem a esta turma 
+        // (ou use um método direto do seu repositório de alunos se já possuir, ex: SelecionarPorTurmaId(id))
+        var alunosDaTurma = repositorioAluno.SelecionarTodos()
+        .Where(a => a.Turma.Id == id)
+        .OrderBy(a => a.Nome)
+        .Select(a => new ListarAlunoViewModel(
+            a.Id,
+            a.NumeroDeMatricula,
+            a.Nome,
+            turma.Nome
+        ))
+        .ToList();
+
+        ViewBag.NomeTurma = turma.Nome;
+        ViewBag.TurmaId = turma.Id;
+
+        return View(alunosDaTurma);
     }
 
     [HttpGet]
@@ -63,7 +92,7 @@ public sealed class TurmaController : Controller
             viewModel.AnoLetivo
         );
 
-        repositorio.Cadastrar(turma);
+        repositorioTurma.Cadastrar(turma);
 
         return RedirectToAction(nameof(Listar));
     }
@@ -71,7 +100,7 @@ public sealed class TurmaController : Controller
     [HttpGet]
     public ActionResult Editar(Guid id)
     {
-        Turma? turmaSelecionada = repositorio.SelecionarPorId(id);
+        Turma? turmaSelecionada = repositorioTurma.SelecionarPorId(id);
 
         if (turmaSelecionada == null)
             return NotFound();
@@ -98,7 +127,7 @@ public sealed class TurmaController : Controller
             viewModel.AnoLetivo
         );
 
-        bool conseguiuEditar = repositorio.Editar(id, turmaAtualizada);
+        bool conseguiuEditar = repositorioTurma.Editar(id, turmaAtualizada);
 
         if (!conseguiuEditar)
             return NotFound();
@@ -109,7 +138,7 @@ public sealed class TurmaController : Controller
     [HttpGet]
     public ActionResult Excluir(Guid id)
     {
-        Turma? turmaSelecionada = repositorio.SelecionarPorId(id);
+        Turma? turmaSelecionada = repositorioTurma.SelecionarPorId(id);
 
         if (turmaSelecionada == null)
             return NotFound();
@@ -125,7 +154,7 @@ public sealed class TurmaController : Controller
     [HttpPost]
     public ActionResult Excluir(ExcluirTurmaViewModel viewModel)
     {
-        bool conseguiuExcluir = repositorio.Excluir(viewModel.Id);
+        bool conseguiuExcluir = repositorioTurma.Excluir(viewModel.Id);
 
         if (!conseguiuExcluir)
             return NotFound();

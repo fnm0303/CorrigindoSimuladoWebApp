@@ -1,0 +1,90 @@
+@model List<ListarAlunoViewModel>
+@{
+    Layout = "_Layout";
+    ViewBag.Titulo = "Alunos da Turma";
+}
+
+<div class="container-fluid px-0 mt-4">
+
+    <!-- Cabeçalho da Lista -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1 d-flex align-items-center gap-2" style="color: #0f2d59; letter-spacing: -0.5px;">
+                <i class="bi bi-people-fill"></i> Alunos da Turma: @ViewBag.NomeTurma
+            </h2>
+            <p class="text-muted mb-0">Relação de alunos matriculados nesta turma.</p>
+        </div>
+
+        <div>
+            <!-- Botão Voltar para a listagem geral de turmas -->
+            <a asp-action="Listar" class="btn bg-white shadow-sm rounded-pill px-4"
+               style="color: #0f2d59; border: 2px solid #0f2d59; transition: 0.2s;">
+                <i class="bi bi-arrow-return-left me-2"></i> Voltar às Turmas
+            </a>
+        </div>
+    </div>
+
+    <!-- Grid de Cards de Alunos -->
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var aluno in Model)
+            {
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 border-start border-5 position-relative hover-card"
+                         style="border-color: #0f2d59 !important;">
+                        <div class="card-body d-flex flex-column p-4">
+
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i class="bi bi-person fs-3" style="color: #0f2d59;"></i>
+                                </div>
+                                <span class="badge rounded-pill fw-normal"
+                                      style="background-color: #e3ebe3; color: #0f2d59; border: 1px solid #c9d8c9;">
+                                    <i class="bi bi-hash me-1"></i> Matrícula: @aluno.NumeroDeMatricula
+                                </span>
+                            </div>
+
+                            <h5 class="card-title fw-bold mb-3 text-truncate" style="color: #0f2d59;" title="@aluno.Nome">
+                                @aluno.Nome
+                            </h5>
+
+                            <!-- Link direto para detalhar ou gerenciar o aluno se necessário -->
+                            <div class="mt-auto">
+                                <span class="text-muted small d-flex align-items-center">
+                                    <i class="bi bi-check-circle text-success me-1"></i> Matriculado ativo
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <!-- Estado Vazio -->
+            <div class="col-12">
+                <div class="p-5 bg-white shadow-sm rounded-4 border-0 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="Sem dados"
+                         style="width: 120px; opacity: 0.5;" class="mb-4" />
+                    <h4 class="text-dark fw-bold mb-2">Nenhum aluno nesta turma</h4>
+                    <p class="text-muted fs-6 mb-0">Ainda não há alunos cadastrados vinculados à turma
+                        <strong>@ViewBag.NomeTurma</strong>.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <style>
+        .hover-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(15, 45, 89, 0.1) !important;
+        }
+    </style>
