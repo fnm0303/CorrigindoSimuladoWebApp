@@ -391,6 +391,61 @@ public sealed class CorrecaoController : Controller
     }
 
     [HttpGet]
+    public ActionResult ExportarGeralCsv(Guid provaId)
+    {
+        // 1. Busca todas as correções cadastradas para esta prova específica
+        var correcoes = repositorioCorrecao.SelecionarTodos()
+            .Where(c => c.Prova.Id == provaId)
+            .ToList();
+
+        if (!correcoes.Any())
+            return RedirectToAction(nameof(Listar));
+
+        var prova = correcoes.First().Prova;
+        int totalQuestoes = prova.QuantidadeQuestoes;
+        string gabaritoProva = prova.GabaritoCorreto.Replace(" ", "").ToUpper();
+
+        var relatorio = new System.Text.StringBuilder();
+
+        // 2. Monta a linha de cabeçalho dinamicamente
+        var cabecalho = new System.Text.StringBuilder();
+        cabecalho.Append("Nome do Aluno;Total de Acertos");
+        for (int i = 1; i <= totalQuestoes; i++)
+        {
+            cabecalho.Append($";Q{i}");
+        }
+        relatorio.AppendLine(cabecalho.ToString());
+
+        // 3. Preenche uma linha para cada aluno
+        foreach (var correcao in correcoes)
+        {
+            string nomeAluno = correcao.Aluno.Nome.Replace(";", " "); // Evita quebra de sintaxe no CSV
+            string gabaritoAluno = correcao.GabaritoAluno.Replace(" ", "").ToUpper();
+
+            var linhaAluno = new System.Text.StringBuilder();
+            linhaAluno.Append($"{nomeAluno};{correcao.NumeroAcertos}");
+
+            for (int i = 0; i < totalQuestoes; i++)
+            {
+                char respAluno = i < gabaritoAluno.Length ? gabaritoAluno[i] : ' ';
+                char respProva = i < gabaritoProva.Length ? gabaritoProva[i] : ' ';
+
+                // 1 se acertou, 0 se errou ou em branco
+                int pontuacao = (respAluno != ' ' && respAluno == respProva) ? 1 : 0;
+                linhaAluno.Append($";{pontuacao}");
+            }
+
+            relatorio.AppendLine(linhaAluno.ToString());
+        }
+
+        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(relatorio.ToString());
+        string nomeArquivo = $"Resultado_Turma_{prova.Nome.Replace(" ", "_")}.csv";
+
+        // Retorna o arquivo formatado para download direto no Excel
+        return File(bytes, "text/csv", nomeArquivo);
+    }
+
+    [HttpGet]
     public ActionResult ExportarExcel(Guid id)
     {
         Correcao? correcao = repositorioCorrecao.SelecionarPorId(id);
